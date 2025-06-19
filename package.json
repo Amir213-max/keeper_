@@ -1,5 +1,6 @@
 {
   "name": "keepers",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,12 +10,28 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.13.8",
+    "@heroicons/react": "^2.2.0",
+    "@prisma/client": "^6.8.2",
+    "@splidejs/react-splide": "^0.7.12",
+    "apollo-server-micro": "^3.13.0",
+    "clsx": "^2.1.1",
+    "graphql": "^16.11.0",
+    "graphql-request": "^7.2.0",
+    "keen-slider": "^6.8.6",
+    "lucide-react": "^0.515.0",
+    "next": "15.3.2",
+    "next-intl": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.2"
+    "react-icons": "^5.5.0",
+    "swiper": "^11.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "prisma": "^6.8.2",
+    "tailwindcss": "^4.1.10"
   }
 }
