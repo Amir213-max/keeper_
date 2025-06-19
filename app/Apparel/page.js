@@ -61,18 +61,14 @@ const {t , lang} = useTranslation()
   <div className="col-span-3 p-4 bg-white">
 
     <h1 className='text-4xl text-[#1f2323] p-2'> {t("Goalkeeper Apparel")}</h1>
-    <BrandSplide_1 />
+    
     <div className='flex mb-4 gap-3'>
 
-    <FilterDropdown />
-    <FilterDropdown />
-    <FilterDropdown />
-    <FilterDropdown />
-    <FilterDropdown />
+  
     
     </div>
     <div className='grid grid-cols-4 justify-center gap-3'>
-  <Card_1 /> 
+  
  
   
     </div>
