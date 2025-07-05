@@ -6,6 +6,7 @@ import NavbarWithLinks from "./Componants/navbar";
 import { CartProvider } from "./contexts/CartContext";
 import { ChatProvider } from "./contexts/ChatContext";
 import { TranslationProvider } from "./contexts/TranslationContext";
+import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
 
@@ -31,7 +32,10 @@ export default function RootLayout({ children  }) {
     <html>
 
      <body>
+
    <TranslationProvider>
+   <Toaster position="top-center" />
+   
      <CartProvider>
      <NavbarWithLinks />
 

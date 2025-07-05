@@ -7,7 +7,7 @@ import FilterDropdown from '../Componants/CheckboxDropdown ';
 import ProductSlider from '../Componants/ProductSlider';
 import { useTranslation } from '../contexts/TranslationContext';
 
-export default function GoalkeeperClientPage({ products, brands, attributeValues }) {
+export default function TeamsportClientPage({ products, brands, attributeValues }) {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -31,7 +31,7 @@ export default function GoalkeeperClientPage({ products, brands, attributeValues
   }, [products, selectedBrand, selectedAttributes, selectedCategory]);
 
   const sidebarItems = [
-    { label: 'Goalkeeper Gloves', link : '/GoalkeeperGloves', children: [] },
+    { label: 'Goalkeeper Gloves', children: [] },
     {
       label: 'Football Boots',
       link: '/FootballBoots',
@@ -184,7 +184,7 @@ export default function GoalkeeperClientPage({ products, brands, attributeValues
 
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className='text-4xl text-[#1f2323] p-2'>
-            {selectedCategory ? t(selectedCategory) : t("Goalkeeper Gloves")}
+            {selectedCategory ? t(selectedCategory) : t("Teamsport")}
           </h1>
 
           <BrandsSlider

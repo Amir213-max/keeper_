@@ -1,15 +1,31 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { useCart } from '../contexts/CartContext';
+import { useTranslation } from '../contexts/TranslationContext';
 
 export default function CartSidebar({ isOpen, onClose }) {
-  const { cartItems } = useCart();
-
+  const { cartItems, increaseQuantity, decreaseQuantity } = useCart();
+  const { t } = useTranslation();
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'unset';
+    if (isOpen) {
+      document.body.classList.add('cart-open');
+    } else {
+      document.body.classList.remove('cart-open');
+    }
+  
+    return () => {
+      document.body.classList.remove('cart-open'); // تأمين إضافي لو خرج فجأة
+    };
   }, [isOpen]);
+  
+
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price?.value * item.quantity,
+    0
+  );
 
   return (
     <div
@@ -18,7 +34,7 @@ export default function CartSidebar({ isOpen, onClose }) {
       }`}
     >
       <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
-        <h2 className="text-xl font-bold">Your Shopping Cart</h2>
+        <h2 className="text-xl font-bold">{t("Your Shopping Cart")}</h2>
         <button onClick={onClose} className="text-gray-600 hover:text-black">
           <FaTimes size={24} />
         </button>
@@ -26,7 +42,9 @@ export default function CartSidebar({ isOpen, onClose }) {
 
       <div className="p-4 text-gray-700 space-y-4">
         {cartItems.length === 0 ? (
-          <p className="text-center font-medium py-10">Your shopping cart is empty!</p>
+          <p className="text-center font-medium py-10">
+            {t("Your shopping cart is empty!")}
+          </p>
         ) : (
           <>
             {cartItems.map((item, index) => (
@@ -38,38 +56,66 @@ export default function CartSidebar({ isOpen, onClose }) {
                 />
                 <div className="flex flex-col flex-1">
                   <p className="font-semibold text-base">{item.name}</p>
-                  <p className="text-sm text-gray-500">Brand: {item.brand?.name}</p>
-                  <p className="text-sm text-gray-500">Size: M</p>
-                  <p className="text-sm text-gray-800 mt-1 font-medium">
-                    €{item.price?.value.toFixed(2)}
+                  <p className="text-sm text-gray-500">
+                    {t("Brand:")} {item.brand?.name}
                   </p>
+                  <p className="text-sm text-gray-500">{t("SKU")}: {item.sku}</p>
+                  <p className="text-sm text-gray-800 mt-1 font-medium">
+                    €{(item.price?.value * item.quantity).toFixed(2)}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      onClick={() => decreaseQuantity(item.id, item.sku)}
+                      className="px-2 py-1 border rounded hover:bg-gray-100"
+                    >
+                      -
+                    </button>
+                    <span className="px-2">{item.quantity}</span>
+                    <button
+                      onClick={() => increaseQuantity(item.id, item.sku)}
+                      className="px-2 py-1 border rounded hover:bg-gray-100"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
 
             <div className="mt-6 border-t pt-4">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Subtotal</span>
-                <span className="font-semibold text-lg">€{cartItems.reduce((total, item) => total + item.price?.value, 0).toFixed(2)}</span>
+                <span className="text-sm text-gray-600">{t("Subtotal")}</span>
+                <span className="font-semibold text-lg">
+                  €{subtotal.toFixed(2)}
+                </span>
               </div>
-              <button className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-lg transition duration-300">
-                🧾 Proceed to Checkout
+              <Link
+                href="/checkout"
+                className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-lg text-center block transition duration-300"
+              >
+                🧾 {t("Proceed to Checkout")}
+              </Link>
+              <button className="w-full mt-2 text-sm text-blue-600 hover:underline text-center">
+                {t("Continue Shopping")}
               </button>
-              <button className="w-full mt-2 text-sm text-blue-600 hover:underline text-center">Continue Shopping</button>
             </div>
 
-            {/* Recommendation Section */}
             <div className="mt-10">
-              <h3 className="text-lg font-bold mb-3">You May Also Like</h3>
+              <h3 className="text-lg font-bold mb-3">{t("You May Also Like")}</h3>
               <div className="grid grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((_, i) => (
-                  <div key={i} className="border rounded-lg p-2 hover:shadow-md transition">
+                  <div
+                    key={i}
+                    className="border rounded-lg p-2 hover:shadow-md transition"
+                  >
                     <img
                       src="https://via.placeholder.com/100"
                       alt="Recommendation"
                       className="w-full h-24 object-cover rounded"
                     />
-                    <p className="text-sm mt-2 font-medium">Product Name</p>
+                    <p className="text-sm mt-2 font-medium">
+                      {t("Product Name")}
+                    </p>
                     <p className="text-xs text-gray-600">€99.99</p>
                   </div>
                 ))}

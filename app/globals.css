@@ -1,37 +1,34 @@
-
 @import "tailwindcss";
 
-@keyframes slide-in-right {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
 @layer utilities {
-  .animate-slide-in-right {
-    animation: slide-in-right 0.4s ease-out forwards;
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
-}
 
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@layer utilities {
   .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
+  }
+
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.4s ease-out forwards;
   }
 
   @keyframes slide-down {
@@ -44,21 +41,20 @@
       transform: translateY(0);
     }
   }
-  
-  @layer utilities {
-    .animate-slide-down {
-      animation: slide-down 0.3s ease-out forwards;
-    }
+
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out forwards;
   }
-  
+}
+body.cart-open {
+  overflow: hidden;
+  padding-right: 15px; /* يمنع تحرك الصفحة */
 }
 
 :root {
   --background: black;
   --foreground: #f1eeee;
 }
-
-
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -70,8 +66,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'cairo' , sans-serif;
+  font-family: 'cairo', sans-serif;
 }
+
 @media (max-width: 730px) {
   nav#main-links {
     display: none !important;

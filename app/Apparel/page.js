@@ -1,81 +1,46 @@
-
-'use client'; 
-
-import React from 'react'
-
-
-import '@splidejs/splide/dist/css/splide.min.css';
-import Card_1 from '../Componants/card';
-import Card_2 from '../Componants/card_2';
-import BrandSplide_1 from '../Componants/brandsSplide_1';
-
-import FilterDropdown from '../Componants/CheckboxDropdown ';
-import { useTranslation } from '../contexts/TranslationContext';
+import { graphqlClient } from "../lib/graphqlClient";
+import { BROWSE_CATALOG_QUERY } from "../lib/queries";
+import ApparelClientpage from './ApparelClientpage'
 
 
-export default function page() {
-const {t , lang} = useTranslation()
+const fetchProductsByCategory = async () => {
+  const input = { categoryIds: ["20718793" , "20718792" , "18" , "21" , "20716001" , "20716427" , "20719075"] };
+  const variables = { input };
+  const data = await graphqlClient.request(BROWSE_CATALOG_QUERY, variables);
+  return data.catalog.products.edges;
+};
 
-  return (
-    <div className='bg-[#373e3e]'>
+export default async function Page() {
+  const products = await fetchProductsByCategory();
+  const attributeMap = {};
 
-<div className="grid pt-4 grid-cols-4  ">
-  <div className="col-span-1 grid-cols-4 gap-3 bg-[#1f2323]">
-    {/* <Card_1 /> */}
-<ul className='flex w-full   flex-col  '>
-<li className='cursor-pointer '>
-
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Gloves")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Football Boots")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Apparel")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Equipment")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Teamsport")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Sale")}</h2>
-  </a>
-</li>
-
-</ul>
-   
-  </div>
-  <div className="col-span-3 p-4 bg-white">
-
-    <h1 className='text-4xl text-[#1f2323] p-2'> {t("Goalkeeper Apparel")}</h1>
-    
-    <div className='flex mb-4 gap-3'>
-
+  products.forEach((product) => {
+    product.node.attributeValues.forEach((attr) => {
+      const key = attr.attribute?.label;
+      const value = attr.label;
   
-    
-    </div>
-    <div className='grid grid-cols-4 justify-center gap-3'>
+      if (key && value) {
+        if (!attributeMap[key]) attributeMap[key] = new Set();
+        attributeMap[key].add(value);
+      }
+    });
+  });
   
- 
   
-    </div>
-    
-  </div>
-</div>
-    </div>
+  const attributeValues = Object.entries(attributeMap).map(([attribute, values]) => ({
+    attribute,
+    values: Array.from(values),
+  }));
+  
+  
+  const brands = [...new Set(products.map((p) => p.node.brand?.name).filter(Boolean))];
 
-  )
+
+  return <ApparelClientpage products={products} brands={brands}    attributeValues={attributeValues} />;
 }
+
+
+
+
+
+// const input = { categoryIds: ["20717737" , "20717738" , "20717739" ,"20717740" , "20717741" , "20717742" , "20716423" , "20717743" , "20717744" , "20717746" , "20717747" , "20717748"] };

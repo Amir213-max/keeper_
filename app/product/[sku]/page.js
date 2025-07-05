@@ -3,10 +3,11 @@
 import { graphqlClient } from "@/app/lib/graphqlClient";
 import { GET_PRODUCT_BY_SKU } from "../../lib/queries";
 import ImageGallery from "./ImageGallery";
+import ProductDescription from "./ProductDescription";
 import ProductDetailsSidebar from "./ProductDetailsSidebar";
 
 export default async function ProductPage({ params }) {
-  const { sku } = params;
+  const sku = decodeURIComponent(params.sku);
   const data = await graphqlClient.request(GET_PRODUCT_BY_SKU, { sku });
   const product = data.product;
 
@@ -30,6 +31,11 @@ export default async function ProductPage({ params }) {
           <ProductDetailsSidebar product={product} />
         </div>
 
+      </div>
+
+      <div className="w-full text-neutral-800 shadow-2xl">
+        
+<ProductDescription product={product} />
       </div>
     </div>
   );

@@ -8,9 +8,29 @@ export const BROWSE_CATALOG_QUERY = gql`
           node {
             name
             sku
+            areShoes
+            badges{
+              label
+            }
+
+
             images {
               url
             }
+            listPrice{
+              amount
+              currency
+            }
+       
+             priceRange{
+               currency
+               exact{amount currency}
+               from
+               maximum{amount currency}
+               minimum{amount currency}
+               to
+             }
+           
             attributeValues{
               label
               attribute{
@@ -33,8 +53,6 @@ export const BROWSE_CATALOG_QUERY = gql`
 
 
 
-// lib/queries.js (or .ts)
-
 
 
 export const GET_PRODUCT_BY_SKU = gql`
@@ -49,6 +67,39 @@ export const GET_PRODUCT_BY_SKU = gql`
       brand {
         name
       }
+      listPrice{
+        amount
+        currency
+      }
+      badges{
+        label
+      }
+ 
+       priceRange{
+         currency
+         exact{amount currency}
+         from
+         maximum{amount currency}
+         minimum{amount currency}
+         to
+       }
+    
+       
+      descriptions{
+        text
+      }
+    
     }
   }
 `;
+
+
+
+
+
+
+
+
+
+
+

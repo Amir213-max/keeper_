@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from '@heroicons/react/20/solid';
+import { useTranslation } from '../contexts/TranslationContext';
 
 export default function FilterDropdown({ attributeValues, onFilterChange }) {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [showMore, setShowMore] = useState(false);
-
+  const {t} = useTranslation();
   const toggleOption = (attribute, value) => {
     setSelectedFilters((prev) => {
       const current = prev[attribute] || [];
@@ -51,6 +52,7 @@ export default function FilterDropdown({ attributeValues, onFilterChange }) {
       </div>
 
       {hiddenFilters.length > 0 && (
+
         <div>
           <button
             onClick={() => setShowMore(!showMore)}
@@ -59,12 +61,12 @@ export default function FilterDropdown({ attributeValues, onFilterChange }) {
             {showMore ? (
               <>
                 <ChevronUpIcon className="w-4 h-4 mr-1" />
-                More Filters
+               {t('More Filters')}
               </>
             ) : (
               <>
                 <ChevronDownIcon className="w-4 h-4 mr-1" />
-                More Filters
+               {t('More Filters')}
               </>
             )}
           </button>
@@ -75,6 +77,7 @@ export default function FilterDropdown({ attributeValues, onFilterChange }) {
 }
 
 function Dropdown({ attribute, values, selected, onConfirm }) {
+  const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [tempSelected, setTempSelected] = useState(selected);
   const dropdownRef = useRef(null);
@@ -155,7 +158,7 @@ function Dropdown({ attribute, values, selected, onConfirm }) {
               onClick={confirm}
               className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              Done ✔
+             { t("Done ✔")}
             </button>
           </div>
         </div>

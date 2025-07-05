@@ -15,7 +15,7 @@ export default function ProductSlider({ images, productName }) {
         options={{
           type: 'loop',
           perPage: 1,
-          pagination: images.length > 1,
+          pagination: false,
           arrows: showArrows,
           gap: '1rem',
           autoplay: false,
