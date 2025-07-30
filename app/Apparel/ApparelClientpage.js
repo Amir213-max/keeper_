@@ -7,7 +7,7 @@ import FilterDropdown from '../Componants/CheckboxDropdown ';
 import ProductSlider from '../Componants/ProductSlider';
 import { useTranslation } from '../contexts/TranslationContext';
 
-export default function GoalkeeperClientPage({ products, brands, attributeValues }) {
+export default function ApparelClientpage({ products, brands, attributeValues }) {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -31,162 +31,154 @@ export default function GoalkeeperClientPage({ products, brands, attributeValues
   }, [products, selectedBrand, selectedAttributes, selectedCategory]);
 
   const sidebarItems = [
-    { label: 'Goalkeeper Gloves', children: [] },
+   { label: 'Goalkeeper Gloves', link : '/GoalkeeperGloves' ,children: [] },
     {
       label: 'Football Boots',
       link: '/FootballBoots',
       children: [
-        'Studs',
-        'Cleats',
-        'Artificial grass',
-        'Firm ground',
-        'Hard court',
-        'Leisure kids',
-        'Accessories',
-        'Kids football boots',
-        'Kids studs',
-        'Artificial grass kids',
-        'Firm ground kids',
-        'Hard court kids'
-        
-        
+        {
+          group: "Adult",
+          items: ['Studs', 'Cleats', 'Artificial grass', 'Firm ground', 'Hard court', 'Accessories']
+        },
+        {
+          group: "Kids",
+          items: ['Leisure kids', 'Kids football boots', 'Kids studs', 'Artificial grass kids', 'Firm ground kids', 'Hard court kids']
+        }
       ]
     },
     {
       label: 'Goalkeeper Apparel',
       link: '/Apparel',
       children: [
-        'Goalkeeper undershorts',
-        'Goalkeeper undershirts',
-        'Goalkeeper pants',
-        'Goalkeeper jerseys',
-        'Goalkeeper set',
-        'Training tops',
-        'Goalkeeper training tops'
+        {
+          group: "Clothing",
+          items: [
+            'Goalkeeper undershorts',
+            'Goalkeeper undershirts',
+            'Goalkeeper pants',
+            'Goalkeeper jerseys',
+            'Goalkeeper set',
+            'Training tops',
+            'Goalkeeper training tops'
+          ]
+        }
       ]
     },
     {
       label: 'Goalkeeper Equipment',
       link: '/Equipmen',
       children: [
-          "Glove Wash",
-          "Miscellaneous",
-          "Care",
-          "Grip enhancer",
-          "Towels",
-          "GK-Bag",
-          "Shin Pads",
-          "Elbow Pads",
-          "Knee Pads",
-          "Helmets",
-          "Genital",
-          "Water Bottles",
-          "Studs",
-          "Training aids",
-          "Bandages",
-          "Tapes / Pavings",
-          "Key Rings",
-          "Under gloves",
-          "Online goalkeeper training"
-      ]
-    },
-    {
-      label: 'Teamsport',
-      link: '/Teamsport',
-      children: [
         {
-          group: "Tops",
+          group: "Care & Protection",
           items: [
-            "Jerseys", "Training tops", "T-Shirt", "Jackets", "All weather jackets", "Sweatshirts" , "Polo shirts"  
+            "Glove Wash", "Miscellaneous", "Care", "Grip enhancer", "Towels", "Bandages", "Tapes / Pavings"
           ]
         },
         {
-          group: "Pants",
+          group: "Gear",
           items: [
-            "Long pants", "Shorts"
+            "GK-Bag", "Shin Pads", "Elbow Pads", "Knee Pads", "Helmets", "Genital", "Water Bottles", "Studs", "Training aids", "Under gloves", "Key Rings", "Online goalkeeper training"
           ]
         }
-        ,
-        {
-          group: "Pants",
-          items: [
-            "Long pants", "Shorts"
-          ]
-        }
-        ,
-        {
-          group: "Underwear",
-          items: [
-            "Long pants", "Shorts"
-          ]
-        }
-        ,
-       
-
       ]
     },
+     {
+        label: 'Teamsport',
+        link: '/Teamsport',
+        children: [
+          {
+            group: "Tops",
+            items: [
+              "Jerseys", "Training tops", "T-Shirt", "Jackets", "All weather jackets", "Sweatshirts" , "Polo shirts"  
+            ]
+          },
+          {
+            group: "Pants",
+            items: [
+              "Long pants", "Shorts"
+            ]
+          }
+          ,
+          {
+            group: "Pants",
+            items: [
+              "Long pants", "Shorts"
+            ]
+          }
+          ,
+          {
+            group: "Underwear",
+            items: [
+              "Long pants", "Shorts"
+            ]
+          }
+          ,
+         
 
-    
+        ]
+      },
     { label: 'Sale', children: [] },
   ];
 
+
   return (
     <div className='bg-[#373e3e]'>
-      <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
-        <div className="md:col-span-1 bg-[#1f2323]">
-          <ul className='flex flex-col text-white'>
-            {sidebarItems.map((item, i) => (
-              <li key={i} className='border-b border-[#2a2e2e]'>
-                <div className='text-2xl p-4 hover:bg-[#303434] cursor-pointer flex justify-between items-center'>
-
-                  {/* الرابط الأساسي */}
-                  {item.link ? (
-                    <Link href={item.link} className='flex-1'>
-                      {t(item.label)}
-                    </Link>
-                  ) : (
-                    <div
-                      onClick={() =>
-                        setOpenDropdown(openDropdown === item.label ? null : item.label)
-                      }
-                      className='flex-1'
-                    >
-                      {t(item.label)}
-                    </div>
-                  )}
-
-                  {/* زر فتح/إغلاق القائمة الفرعية */}
-                  {item.children.length > 0 && (
-                    <span
-                      onClick={(e) => {
-                        // يمنع تفعيل الـ Link
-                        setOpenDropdown(openDropdown === item.label ? null : item.label);
-                      }}
-                      className='text-xl px-2 cursor-pointer'
-                    >
-                      {openDropdown === item.label ? '−' : '+'}
-                    </span>
-                  )}
-                </div>
-
-                {/* القائمة الفرعية */}
-                {item.children.length > 0 && openDropdown === item.label && (
-                  <ul className='bg-[#2a2e2e] transition-all duration-300'>
-                    {item.children.map((child, idx) => (
-                      <li
-                        key={idx}
-                        className='px-6 py-2 hover:bg-[#383d3d] text-lg cursor-pointer'
-                        onClick={() => setSelectedCategory(child)}
-                      >
-                        {t(child)}
-                      </li>
-                    ))}
-                  </ul>
+    <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
+      <div className="md:col-span-1 bg-[#1f2323]">
+        <ul className='flex flex-col text-white'>
+          {sidebarItems.map((item, i) => (
+            <li key={i} className='border-b border-[#2a2e2e]'>
+              <div className='text-base p-4 hover:bg-[#303434] cursor-pointer flex justify-between items-center'>
+                {item.link ? (
+                  <Link href={item.link} className='flex-1'>
+                    {t(item.label)}
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === item.label ? null : item.label)
+                    }
+                    className='flex-1'
+                  >
+                    {t(item.label)}
+                  </div>
                 )}
-              </li>
-            ))}
-          </ul>
-        </div>
+                {item.children.length > 0 && (
+                  <span
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === item.label ? null : item.label)
+                    }
+                    className='text-base px-2 cursor-pointer'
+                  >
+                    {openDropdown === item.label ? '−' : '▼'}
+                  </span>
+                )}
+              </div>
+
+              {item.children.length > 0 && openDropdown === item.label && (
+                <ul className='bg-[#2a2e2e] transition-all duration-300'>
+                  {item.children.map((group, gIdx) => (
+                    <li key={gIdx} className="py-2 border-t border-[#383d3d]">
+                      <p className='px-6 py-1 text-sm font-semibold text-amber-200'>
+                        {t(group.group)}
+                      </p>
+                      {group.items.map((child, idx) => (
+                        <div
+                          key={idx}
+                          className='px-6 py-2 hover:bg-[#383d3d] text-base cursor-pointer'
+                          onClick={() => setSelectedCategory(child)}
+                        >
+                          {t(child)}
+                        </div>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
 
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className='text-4xl text-[#1f2323] p-2'>
@@ -244,3 +236,9 @@ export default function GoalkeeperClientPage({ products, brands, attributeValues
     </div>
   );
 }
+
+
+
+
+
+

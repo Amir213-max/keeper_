@@ -5,6 +5,7 @@ import { useCart } from "@/app/contexts/CartContext";
 import { useState } from "react";
 import { useTranslation } from "@/app/contexts/TranslationContext";
 import toast from "react-hot-toast";
+import { useEffect } from 'react';
 import { addProductToCart } from "@/app/lib/mutations";
 
 
@@ -54,6 +55,18 @@ export default function ProductDetailsSidebar({ product }) {
   };
   
   
+
+const sku = product.sku ;
+  useEffect(() => {
+    if (sku) {
+      const existing = JSON.parse(localStorage.getItem("recentlySeen")) || [];
+      const updated = [sku, ...existing.filter((s) => s !== sku)].slice(0, 10); // آخر 10 منتجات فقط
+      localStorage.setItem("recentlySeen", JSON.stringify(updated));
+    }
+  }, [sku]);
+  
+  
+
 
   return (
     <div className="p-5 sm:p-6 md:p-8 b rounded-tr-2xl rounded-br-2xl shadow-lg text-white space-y-6 transition-all duration-300 w-full max-w-md mx-auto">
@@ -130,6 +143,7 @@ export default function ProductDetailsSidebar({ product }) {
       </div>
 
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      
     </div>
   );
 }

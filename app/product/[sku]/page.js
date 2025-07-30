@@ -5,6 +5,7 @@ import { GET_PRODUCT_BY_SKU } from "../../lib/queries";
 import ImageGallery from "./ImageGallery";
 import ProductDescription from "./ProductDescription";
 import ProductDetailsSidebar from "./ProductDetailsSidebar";
+import RecentlySeen from "./RecentlySeen";
 
 export default async function ProductPage({ params }) {
   const sku = decodeURIComponent(params.sku);
@@ -36,6 +37,9 @@ export default async function ProductPage({ params }) {
       <div className="w-full text-neutral-800 shadow-2xl">
         
 <ProductDescription product={product} />
+      </div>
+      <div>
+      <RecentlySeen />
       </div>
     </div>
   );

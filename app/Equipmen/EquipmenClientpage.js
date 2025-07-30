@@ -31,7 +31,7 @@ export default function EquipmenClientPage({ products, brands, attributeValues }
   }, [products, selectedBrand, selectedAttributes, selectedCategory]);
 
   const sidebarItems = [
-    { label: 'Goalkeeper Gloves', children: [] },
+   { label: 'Goalkeeper Gloves', link : '/GoalkeeperGloves' ,children: [] },
     {
       label: 'Football Boots',
       link: '/FootballBoots',
@@ -82,7 +82,7 @@ export default function EquipmenClientPage({ products, brands, attributeValues }
         }
       ]
     },
-    {
+     {
         label: 'Teamsport',
         link: '/Teamsport',
         children: [
@@ -128,7 +128,7 @@ export default function EquipmenClientPage({ products, brands, attributeValues }
         <ul className='flex flex-col text-white'>
           {sidebarItems.map((item, i) => (
             <li key={i} className='border-b border-[#2a2e2e]'>
-              <div className='text-2xl p-4 hover:bg-[#303434] cursor-pointer flex justify-between items-center'>
+              <div className='text-base p-4 hover:bg-[#303434] cursor-pointer flex justify-between items-center'>
                 {item.link ? (
                   <Link href={item.link} className='flex-1'>
                     {t(item.label)}
@@ -148,9 +148,9 @@ export default function EquipmenClientPage({ products, brands, attributeValues }
                     onClick={() =>
                       setOpenDropdown(openDropdown === item.label ? null : item.label)
                     }
-                    className='text-xl px-2 cursor-pointer'
+                    className='text-base px-2 cursor-pointer'
                   >
-                    {openDropdown === item.label ? '−' : '+'}
+                    {openDropdown === item.label ? '−' : '▼'}
                   </span>
                 )}
               </div>
@@ -165,7 +165,7 @@ export default function EquipmenClientPage({ products, brands, attributeValues }
                       {group.items.map((child, idx) => (
                         <div
                           key={idx}
-                          className='px-6 py-2 hover:bg-[#383d3d] text-lg cursor-pointer'
+                          className='px-6 py-2 hover:bg-[#383d3d] text-base cursor-pointer'
                           onClick={() => setSelectedCategory(child)}
                         >
                           {t(child)}
