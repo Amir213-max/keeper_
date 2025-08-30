@@ -23,7 +23,7 @@ export const PRODUCTS_QUERY = gql`
       id
       name
       sku
-    
+      description
       list_price_amount
       images
       rootCategories {
@@ -52,6 +52,7 @@ query ProductsByCategory($categoryId: ID!) {
       id
       name
       sku
+      description
       list_price_amount
       images
       brand{
@@ -115,6 +116,7 @@ export const PRODUCTS_SHOES_QUERY = gql`
 query PRODUCTS_SHOES_QUERY {
   products {
     id
+    description
     sku
     name
     are_shoes
@@ -150,7 +152,7 @@ export const PRODUCT_QUERY = gql`
       id
       name
       sku
-      description_en
+      description
       list_price_amount
       images
       variants {
@@ -178,7 +180,7 @@ export const GET_PRODUCT_BY_SKU = gql`
       id
       name
       sku
-    
+      description
       list_price_amount
       images
       variants {
