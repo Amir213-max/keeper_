@@ -32,7 +32,7 @@ export default function Sidebar({ categories, onSelectCategory }) {
                   className="px-6 py-2 hover:bg-gray-600 cursor-pointer"
                   onClick={() => onSelectCategory(sub.name)}
                 >
-                  {sub.name} تنمىمىم
+                  {sub.name} 
                 </li>
               ))}
             </ul>
