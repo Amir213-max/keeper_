@@ -5,7 +5,13 @@ export default function Sidebar({ categories, onSelectCategory }) {
   const [openDropdown, setOpenDropdown] = useState(null);
 
   return (
-    <ul className="flex flex-col text-white">
+    <ul
+      className="
+        flex flex-col text-white
+        h-[50vh] overflow-y-auto   /* نص الشاشة والتمرير */
+        md:h-auto md:overflow-visible /* على الشاشات الكبيرة يرجع طبيعي */
+      "
+    >
       {categories.map((root) => (
         <li key={root.id} className="border-b border-gray-700">
           <div
@@ -26,7 +32,7 @@ export default function Sidebar({ categories, onSelectCategory }) {
                   className="px-6 py-2 hover:bg-gray-600 cursor-pointer"
                   onClick={() => onSelectCategory(sub.name)}
                 >
-                  {sub.name}
+                  {sub.name} تنمىمىم
                 </li>
               ))}
             </ul>

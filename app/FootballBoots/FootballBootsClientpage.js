@@ -68,12 +68,16 @@ useEffect(() => {
     <div className="bg-[#373e3e]">
       <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
         {/* Sidebar */}
-        <div className="md:col-span-1 bg-[#1f2323]">
-          <Sidebar
-            categories={categories}
-            onSelectCategory={(catName) => setSelectedCategory(catName)}
-          />
-        </div>
+        <div 
+  className="md:col-span-1 bg-[#1f2323] 
+             md:h-auto md:overflow-visible 
+             h-[50vh] overflow-y-auto"
+>
+  <Sidebar
+    categories={categories}
+    onSelectCategory={(catName) => setSelectedCategory(catName)}
+  />
+</div>
 
         {/* Products Area */}
         <div className="md:col-span-4 p-4 bg-white">
