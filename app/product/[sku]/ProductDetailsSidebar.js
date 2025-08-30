@@ -1,149 +1,82 @@
-'use client';
-
-import CartSidebar from "@/app/Componants/CartSidebar";
-import { useCart } from "@/app/contexts/CartContext";
+"use client";
 import { useState } from "react";
-import { useTranslation } from "@/app/contexts/TranslationContext";
-import toast from "react-hot-toast";
-import { useEffect } from 'react';
-import { addProductToCart } from "@/app/lib/mutations";
-
-
+import { addToCartTempUser } from "@/app/lib/mutations";
+import { useRouter } from "next/navigation";
 
 export default function ProductDetailsSidebar({ product }) {
-  const [cartOpen, setCartOpen] = useState(false);
-  const {addToCart} = useCart();
- 
-  const { t } = useTranslation();
-  const exactPrice = product?.priceRange?.exact?.amount ?? 'N/A';
-  const listPrice = product?.listPrice?.amount ?? 'N/A';
-  const discountPercentage = product?.badges[0]?.label ;
+  const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
+  const router = useRouter();
 
-  // const handleAddToCart = () => {
-  //   addToCart(product);
-  //   setCartOpen(true);
-  //   toast.success(t("Added to cart!"));
-  // };
-
-  
-  const handleAddToCart = async () => {
+  // ➕ إضافة المنتج للكارت
+  const addToCart = async () => {
+    setAdding(true);
     try {
-      const res = await fetch("/api/add-to-cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sku: product.sku }),
-      });
-  
-      const data = await res.json();
-  
-      if (!res.ok) throw new Error(data.error || "Unknown error");
-  
-      // ✅ خزّنه هنا بعد ما يرجع من السيرفر
-      if (typeof window !== 'undefined' && data?.id) {
-        localStorage.setItem("cartId", data.id);
-      }
-  
-      toast.success("Added to cart!");
-      addToCart(product); // من الـ Context
-      setCartOpen(true);
+      const updatedCart = await addToCartTempUser(
+        product.id,
+        quantity,
+        product.list_price_amount || 0
+      );
+      console.log("✅ Cart Updated:", updatedCart);
+      alert(`${product.name} added to cart!`);
     } catch (err) {
-      console.error("Add to cart failed:", err);
-      toast.error("Something went wrong!");
+      console.error("❌ Error adding to cart:", err);
+      alert("Failed to add to cart. Check console for details.");
+    } finally {
+      setAdding(false);
     }
   };
-  
-  
-
-const sku = product.sku ;
-  useEffect(() => {
-    if (sku) {
-      const existing = JSON.parse(localStorage.getItem("recentlySeen")) || [];
-      const updated = [sku, ...existing.filter((s) => s !== sku)].slice(0, 10); // آخر 10 منتجات فقط
-      localStorage.setItem("recentlySeen", JSON.stringify(updated));
-    }
-  }, [sku]);
-  
-  
-
 
   return (
-    <div className="p-5 sm:p-6 md:p-8 b rounded-tr-2xl rounded-br-2xl shadow-lg text-white space-y-6 transition-all duration-300 w-full max-w-md mx-auto">
+    <div className="flex flex-col gap-4 bg-gray-100 p-4 rounded-2xl shadow-lg w-full">
+      {/* أول صورة للمنتج */}
+      {product.images && product.images.length > 0 && (
+        <div className="w-full h-64 overflow-hidden rounded-xl">
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className="object-cover w-full h-full"
+          />
+        </div>
+      )}
 
-      <div className="flex justify-center">
-        <img
-          src={product.images[0]?.url}
-          alt={product.brand.name}
-          className="w-20 h-20 object-contain mb-2 drop-shadow-xl"
+      {/* بيانات المنتج */}
+      <div className="flex flex-col gap-1 text-neutral-800">
+        <h2 className="text-xl font-bold">{product.name}</h2>
+        <p className="text-lg font-semibold text-amber-600">
+          ${product.list_price_amount || "N/A"}
+        </p>
+      </div>
+
+      {/* اختيار الكمية */}
+      <div className="flex items-center gap-2 text-neutral-800">
+        <label className="font-medium">Qty:</label>
+        <input
+          type="number"
+          min={1}
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value))}
+          className="w-16 p-1 rounded border border-gray-300"
         />
       </div>
 
-      <p className="text-sm text-gray-400 text-center">
-        {t("SKU")}: {product.sku}
-      </p>
+      {/* أزرار Add to Cart و Checkout */}
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={addToCart}
+          disabled={adding}
+          className="bg-black hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition"
+        >
+          {adding ? "Adding..." : "Add to Cart"}
+        </button>
 
-      <div className="text-center space-y-1">
-        {/* List Price */}
-<p className="text-sm text-gray-400">
-  {t("List Price")}:
-  {(() => {
-    const [intPart, decPart] = (+listPrice).toFixed(2).split(".");
-    return (
-      <span className="ms-1">
-        €{intPart}
-        <span className="text-xs ms-0.5 align-middle">.{decPart}</span>
-      </span>
-    );
-  })()}
-</p>
-
-
-<div className="flex justify-center items-center space-x-3 rtl:space-x-reverse">
-  {(() => {
-    const [intPart, decPart] = (+exactPrice).toFixed(2).split(".");
-    return (
-      <span className="text-base font-bold text-yellow-400">
-        €{intPart}
-        <span className="text-xs ms-0.5 align-middle">.{decPart}</span>
-      </span>
-    );
-  })()}
-  <span className="text-sm bg-yellow-400 text-black font-semibold px-2 py-1 rounded-full">
-    {discountPercentage}
-  </span>
-</div>
-
+        <button
+          onClick={() => router.push("/checkout")}
+          className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded transition"
+        >
+          Checkout
+        </button>
       </div>
-
-      <div className="space-y-1">
-        <label className="text-sm">{t("Size")}: X</label>
-        <select className="w-full bg-white text-black p-2 rounded-md border-2 border-amber-500 focus:outline-none transition duration-200">
-          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-            <option key={num}>{num}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="text-green-500 flex items-center gap-2 text-sm font-medium">
-        🚚 {t("Ready To Ship")}
-      </div>
-
-      <button
-      onClick={handleAddToCart }
-        className="w-full transition-all duration-200 bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2.5 rounded-lg shadow-md hover:scale-[1.02]"
-      >
-        🛒 {t("ADD TO BASKET")}
-      </button>
-
-      <div className="text-xs text-gray-400 text-center space-y-0.5">
-        <p>» SET-KS134/SET</p>
-        <p>» SET-KS137/SET</p>
-        <p>» SET-GIFT01/SET</p>
-      </div>
-
-      <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      
     </div>
   );
 }

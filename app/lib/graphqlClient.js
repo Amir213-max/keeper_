@@ -1,23 +1,18 @@
 // lib/graphqlClient.js
-import { GraphQLClient } from 'graphql-request';
+import { GraphQLClient } from "graphql-request";
 
-// API endpoint
-const endpoint = 'https://backend.keepersport.at/sa/graphql';
+const endpoint = process.env.GRAPHQL_ENDPOINT || "https://keeper.in-brackets.online/graphql";
 
-// Use your real credentials
-const username = 'aalzuwayed';
-const password = 'Wa:i16m:3y9\\'; // ← escaped backslash
-
-// Encode Basic Auth header: base64("username:password")
-const auth = Buffer.from(`${username}:${password}`).toString('base64');
+// لو الـ endpoint مش موجود في .env.local هيظهر Error
+if (!endpoint) {
+  throw new Error("GRAPHQL_ENDPOINT is not defined in .env.local");
+}
 
 export const graphqlClient = new GraphQLClient(endpoint, {
   headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Basic ${auth}`,
+    "Content-Type": "application/json",
+    // لو هتضيف توكن أو Authorization حطها هنا
+    // Authorization: `Bearer ${process.env.API_TOKEN}`,
   },
 });
-
-
-
 

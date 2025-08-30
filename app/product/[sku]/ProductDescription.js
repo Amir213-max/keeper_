@@ -1,68 +1,49 @@
 'use client';
 
-
 import { useTranslation } from "@/app/contexts/TranslationContext";
 import { useState } from "react";
-
+import { addToCartTempUser } from "@/app/lib/mutations";
 
 export default function ProductDescription({ product }) {
- 
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('description');
-
-  // خد أول وصف فقط
-  const firstDesc = product.descriptions?.[0]?.text || '';
-
-  // استخلاص الوصف فقط بدون details
-  const mainDescription = firstDesc.split('<h2>')[0];
-
-  // استخراج الـ <ul> اللي فيها details
-  const detailsMatch = firstDesc.match(/<ul>[\s\S]*?<\/ul>/);
-  
-  const detailsHTML = detailsMatch ? detailsMatch[0] : '';
-  const detailsWithStyle = detailsHTML.replace('<ul>', '<ul style="list-style: disc; padding-left: 1.5rem;">');
+  const [adding, setAdding] = useState(false);
+  const [message, setMessage] = useState('');
 
   return (
-    <div className="p-4 mt-4 bg-white rounded-2xl shadow-lg text-neutral-800 transition-all duration-300 w-full">
-      {/* الأزرار */}
+    <div className="p-4 mt-4 bg-white rounded-2xl shadow-lg text-neutral-800 w-full">
+      {/* الأزرار tabs */}
       <div className="flex space-x-4 mb-4 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('description')}
-          className={`py-2 cursor-pointer px-4 font-semibold ${
+          className={`py-2 px-4 font-semibold cursor-pointer ${
             activeTab === 'description'
               ? 'text-amber-500 border-b-2 border-amber-500'
               : 'text-gray-500'
           }`}
         >
-          Description
+          {t('Description')}
         </button>
         <button
           onClick={() => setActiveTab('details')}
-          className={`py-2 px-4 cursor-pointer font-semibold ${
+          className={`py-2 px-4 font-semibold cursor-pointer ${
             activeTab === 'details'
               ? 'text-amber-500 border-b-2 border-amber-500'
               : 'text-gray-500'
           }`}
         >
-          Details
+          {t('Details')}
         </button>
       </div>
 
       {/* المحتوى */}
-      {activeTab === 'description' && (
-        <div
-          className="prose max-w-3xl p-4 animate-fade-in"
-          dangerouslySetInnerHTML={{ __html: mainDescription }}
-        />
-      )}
+      <div
+        className="prose max-w-3xl p-4"
+        dangerouslySetInnerHTML={{ __html: product.description || '' }}
+      />
 
-      {activeTab === 'details' && (
-        <div
-          className="prose list-disc ps-5 max-w-3xl animate-fade-in"
-          dangerouslySetInnerHTML={{ __html: detailsWithStyle }}
-        />
-      )}
+      {/* زرار Add to Cart */}
+
     </div>
   );
-
 }

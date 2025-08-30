@@ -1,54 +1,44 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
+import { fetchUserCart, removeItemFromCart } from "../lib/mutations";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState([]);
+  const [cart, setCart] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const addToCart = (product) => {
-    setCartItems((prevItems) => {
-      const existingIndex = prevItems.findIndex(
-        (item) => item.id === product.id && item.sku === product.sku
-      );
-
-      if (existingIndex !== -1) {
-        const updatedItems = [...prevItems];
-        updatedItems[existingIndex].quantity += 1;
-        return updatedItems;
-      }
-
-      return [...prevItems, { ...product, quantity: 1 }];
-    });
+  const loadCart = async () => {
+    try {
+      setLoading(true);
+      const userCart = await fetchUserCart();
+      setCart(userCart);
+    } catch (err) {
+      console.error("Error loading cart:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const increaseQuantity = (productId, sku) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === productId && item.sku === sku
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
+  const removeItem = async (itemId) => {
+    try {
+      await removeItemFromCart(itemId);
+      setCart((prevCart) => ({
+        ...prevCart,
+        lineItems: prevCart.lineItems.filter((item) => item.id !== itemId),
+      }));
+    } catch (err) {
+      console.error("Error removing item:", err);
+    }
   };
 
-  const decreaseQuantity = (productId, sku) => {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) =>
-          item.id === productId && item.sku === sku
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
-  };
+  useEffect(() => {
+    loadCart();
+  }, []);
 
   return (
-    <CartContext.Provider
-      value={{ cartItems, addToCart, increaseQuantity, decreaseQuantity }}
-    >
+    <CartContext.Provider value={{ cart, loading, loadCart, removeItem }}>
       {children}
     </CartContext.Provider>
   );

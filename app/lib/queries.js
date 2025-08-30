@@ -1,105 +1,195 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
-export const BROWSE_CATALOG_QUERY = gql`
-  query BrowseCatalog($input: CatalogInput) {
-    catalog(input: $input) {
+// ✅ جلب كل الـ Main Root Categories (العناوين الرئيسية + الفرعية)
+export const MAIN_ROOT_CATEGORIES_QUERY = gql`
+  query MainRootCategories {
+    mainRootCategories {
+      id
+      name
+      slug
+      subCategories {
+        id
+        name
+        slug
+      }
+    }
+  }
+`;
+
+// ✅ جلب المنتجات (مع إمكانية تحديد limit/offset)
+export const PRODUCTS_QUERY = gql`
+  query Products($limit: Int, $offset: Int) {
+    products(limit: $limit, offset: $offset) {
+      id
+      name
+      sku
+    
+      list_price_amount
+      images
+      rootCategories {
+        id
+        name
+        slug
+        parent {
+          id
+          name
+          slug
+        }
+      }
+    }
+  }
+`;
+
+// ✅ جلب المنتجات حسب الكاتيجوري (رئيسي أو فرعي)
+export const PRODUCTS_BY_CATEGORY_QUERY = gql`
+query ProductsByCategory($categoryId: ID!) {
+  rootCategory(id: $categoryId) {
+    id
+    name
+   
+    slug
+    products {
+      id
+      name
+      sku
+      list_price_amount
+      images
+      brand{
+        id
+        name
+      }
+      productAttributeValues {
+        id
+        key
+        attribute {
+          id
+          label
+          key
+        }
+      }
+      
+    }
+    subCategories {
+      id
+      name
+      slug
       products {
-        edges {
-          node {
-            name
-            sku
-            areShoes
-            badges{
-              label
-            }
-
-
-            images {
-              url
-            }
-            listPrice{
-              amount
-              currency
-            }
-       
-             priceRange{
-               currency
-               exact{amount currency}
-               from
-               maximum{amount currency}
-               minimum{amount currency}
-               to
-             }
-           
-            attributeValues{
-              label
-              attribute{
-                label
-              
-                }
-              }
-            categories {
-              name
-            }
-            brand {
-              name
-            }
+        id
+        name
+        sku
+      
+        list_price_amount
+        images
+        productAttributeValues {
+          id
+          
+          attribute {
+            id
+            label
           }
         }
       }
     }
   }
-`
+}
+
+`;
 
 
-
-
-
-export const GET_PRODUCT_BY_SKU = gql`
-  query GetProductBySKU($sku: ID!) {
-    product(sku: $sku) {
+export const GET_CATEGORIES_QUERY = gql`
+  query GetCategories {
+    rootCategories {
+      id
       name
-      sku
-      
-      images {
-        url
-      }
-      brand {
+      subCategories {
+        id
         name
       }
-      listPrice{
-        amount
-        currency
-      }
-      badges{
+    }
+  }
+`;
+
+export const PRODUCTS_SHOES_QUERY = gql` 
+
+
+query PRODUCTS_SHOES_QUERY {
+  products {
+    id
+    sku
+    name
+    are_shoes
+    list_price_amount
+    brand {
+      id
+      name
+    }
+    productAttributeValues {
+      id
+      key
+      attribute {
+        id
         label
       }
- 
-       priceRange{
-         currency
-         exact{amount currency}
-         from
-         maximum{amount currency}
-         minimum{amount currency}
-         to
-       }
-    
-       
-      descriptions{
-        text
+    }
+    images
+    rootCategories {
+      id
+      name
+    }
+  }
+}
+
+
+
+
+`;
+// ✅ جلب تفاصيل منتج واحد بالـ ID
+export const PRODUCT_QUERY = gql`
+  query Product($id: ID!) {
+    product(id: $id) {
+      id
+      name
+      sku
+      description_en
+      list_price_amount
+      images
+      variants {
+        id
+        name
+        price
       }
-    
+      brand {
+        id
+        name
+      }
+      rootCategories {
+        id
+        name
+        slug
+      }
     }
   }
 `;
 
 
-
-
-
-
-
-
-
-
-
+export const GET_PRODUCT_BY_SKU = gql`
+  query GetProductBySku($sku: String!) {
+    productBySku(sku: $sku) {
+      id
+      name
+      sku
+    
+      list_price_amount
+      images
+      variants {
+        id
+        name
+        price
+      }
+      brand {
+        id
+        name
+      }
+    }
+  }
+`;

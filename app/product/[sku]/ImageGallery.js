@@ -5,7 +5,7 @@ import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 
 export default function ImageGallery({ images, productName }) {
-  const [selectedImage, setSelectedImage] = useState(images[0]?.url);
+  const [selectedImage, setSelectedImage] = useState(images[0]);
   const [fadeKey, setFadeKey] = useState(0); // لتفعيل الأنيميشن
 
   const stopClickPropagation = (e) => {
@@ -52,9 +52,9 @@ export default function ImageGallery({ images, productName }) {
             <SplideSlide key={index}>
               <img
                 onPointerDown={stopClickPropagation}
-                src={img.url}
+                src={img}
                 alt={`صورة ${index + 1}`}
-                onClick={() => handleImageClick(img.url)}
+                onClick={() => handleImageClick(img)}
                 className={`w-20 h-20 object-contain rounded-md border-2 mb-2 transition-all duration-300 cursor-pointer 
                 ${
                   selectedImage === img.url

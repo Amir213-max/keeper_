@@ -29,7 +29,7 @@ export default function ProductSlider({ images, productName }) {
             className="flex items-center justify-center"
           >
             <img
-              src={img.url}
+              src={img}
               alt={`${productName} image ${index + 1}`}
               className="w-full h-48 object-contain rounded"
             />

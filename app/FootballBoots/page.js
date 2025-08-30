@@ -1,46 +1,43 @@
-import { graphqlClient } from "../lib/graphqlClient";
-import { BROWSE_CATALOG_QUERY } from "../lib/queries";
 
+
+
+import { graphqlClient } from "../lib/graphqlClient";
+import { PRODUCTS_SHOES_QUERY } from "../lib/queries";
 import FootballClientPage from "./FootballBootsClientpage";
 
-
-const fetchProductsByCategory = async () => {
-    const input = { categoryIds: ["20717737" , "20717738" , "20717739" ,"20717740" , "20717741" , "20717742" , "20716423" , "20717743" , "20717744" , "20717746" , "20717747" , "20717748"] };
-  const variables = { input };
-  const data = await graphqlClient.request(BROWSE_CATALOG_QUERY, variables);
-  return data.catalog.products.edges;
-};
-
 export default async function Page() {
-  const products = await fetchProductsByCategory();
-  const attributeMap = {};
+  const data = await graphqlClient.request(PRODUCTS_SHOES_QUERY);
 
-  products.forEach((product) => {
-    product.node.attributeValues.forEach((attr) => {
-      const key = attr.attribute?.label;
-      const value = attr.label;
+  // فلترة منتجات football
+  const products = (data.products || []).filter((p) => p.are_shoes === true);
+
+  const brands = [...new Set(products.map((p) => p.brand?.name).filter(Boolean))];
+
+  const attributeValues = [];
+
+  products.forEach((p) => {
+    (p.productAttributeValues || []).forEach((av) => {
+      const attr = av.attribute?.label;
+      if (!attr) return;
   
-      if (key && value) {
-        if (!attributeMap[key]) attributeMap[key] = new Set();
-        attributeMap[key].add(value);
+      let existing = attributeValues.find((a) => a.attribute === attr);
+      if (!existing) {
+        existing = { attribute: attr, values: [] };
+        attributeValues.push(existing);
+      }
+  
+      if (!existing.values.includes(av.key)) {
+        existing.values.push(av.key);
       }
     });
   });
   
+  return (
+    <FootballClientPage
+      products={products}
+      brands={brands}
+      attributeValues={attributeValues} // Array of objects زي باقي الصفحات
+    />
+  );
   
-  const attributeValues = Object.entries(attributeMap).map(([attribute, values]) => ({
-    attribute,
-    values: Array.from(values),
-  }));
-  
-  
-  const brands = [...new Set(products.map((p) => p.node.brand?.name).filter(Boolean))];
-
-
-  return <FootballClientPage products={products} brands={brands}    attributeValues={attributeValues} />;
 }
-
-
-
-
-

@@ -18,19 +18,19 @@ import MultiSlider_7 from "./Componants/Slider_7";
 
 
 
-import { graphqlClient } from './lib/graphqlClient';
-import { BROWSE_CATALOG_QUERY } from "./lib/queries";
+// import { graphqlClient } from './lib/graphqlClient';
+// import { BROWSE_CATALOG_QUERY } from "./lib/queries";
 
-const fetchProductsByCategory = async () => {
-  const input = { categoryIds: ["17"] };
-  const variables = { input };
+// const fetchProductsByCategory = async () => {
+//   const input = { categoryIds: ["17"] };
+//   const variables = { input };
 
-  const data = await graphqlClient.request(BROWSE_CATALOG_QUERY, variables);
-  return data.catalog.products.edges;
-};
+//   const data = await graphqlClient.request(BROWSE_CATALOG_QUERY, variables);
+//   return data.catalog.products.edges;
+// };
 
 export default async function Home() {
-  const products = await fetchProductsByCategory();
+  // const products = await fetchProductsByCategory();
 
   return (
     <div>
@@ -73,8 +73,8 @@ export default async function Home() {
       <MultiSlider_5 />
       <Cover_6 />
       <MultiSlider_6 />
-      <MultiSlider_7 />
-      <MultiSlider_2 />
+      {/* <MultiSlider_7 />
+      <MultiSlider_2 /> */}
     </div>
   );
 }

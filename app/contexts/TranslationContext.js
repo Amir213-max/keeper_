@@ -1,28 +1,31 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 
+// Static imports بدل dynamic imports
+import en from '../../locales/en.json';
+import ar from '../../locales/ar.json';
+
 const TranslationContext = createContext();
 
 const dictionaries = {
-  en: () => import('../../locales/en.json').then(mod => mod.default),
-  ar: () => import('../../locales/ar.json').then(mod => mod.default),
+  en,
+  ar,
 };
 
 export const TranslationProvider = ({ children }) => {
   const [lang, setLang] = useState('en');
-  const [dict, setDict] = useState({});
-
+  const [dict, setDict] = useState(dictionaries['en']);
 
   useEffect(() => {
-    dictionaries[lang]().then(setDict);
+    setDict(dictionaries[lang]);
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
   }, [lang]);
 
   const t = (key) => dict[key] || key;
-  
+
   return (
-    <TranslationContext.Provider value={{ t, lang, setLang  }}>
+    <TranslationContext.Provider value={{ t, lang, setLang }}>
       {children}
     </TranslationContext.Provider>
   );

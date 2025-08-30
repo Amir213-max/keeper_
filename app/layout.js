@@ -40,7 +40,10 @@ export default function RootLayout({ children  }) {
      <NavbarWithLinks />
 
 <ChatProvider>
+  <CartProvider>
+
         {children}
+  </CartProvider>
 <ChatSidebar />
 </ChatProvider>
 
