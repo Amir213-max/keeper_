@@ -16,6 +16,7 @@
     "@splidejs/react-splide": "^0.7.12",
     "apollo-server-micro": "^3.13.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
     "graphql": "^16.11.0",
     "graphql-request": "^7.2.0",
     "keen-slider": "^6.8.6",

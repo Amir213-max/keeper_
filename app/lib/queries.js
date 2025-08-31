@@ -49,11 +49,23 @@ query ProductsByCategory($categoryId: ID!) {
    
     slug
     products {
+      list_price_amount
+      list_price_currency
+      relative_list_price_difference
+      price_range_from
+      price_range_to
+      price_range_currency
+      price_range_exact_amount
+      price_range_maximum_amount
+      price_range_minimum_amount
       id
       name
       sku
       description
-      list_price_amount
+      rootCategories {
+        id
+        name
+      }
       images
       brand{
         id
@@ -79,7 +91,7 @@ query ProductsByCategory($categoryId: ID!) {
         name
         sku
       
-        list_price_amount
+        
         images
         productAttributeValues {
           id
@@ -115,6 +127,15 @@ export const PRODUCTS_SHOES_QUERY = gql`
 
 query PRODUCTS_SHOES_QUERY {
   products {
+    list_price_amount
+    list_price_currency
+    relative_list_price_difference
+    price_range_from
+    price_range_to
+    price_range_currency
+    price_range_exact_amount
+    price_range_maximum_amount
+    price_range_minimum_amount
     id
     description
     sku
@@ -169,6 +190,9 @@ export const PRODUCT_QUERY = gql`
         name
         slug
       }
+
+
+      
     }
   }
 `;
@@ -181,17 +205,36 @@ export const GET_PRODUCT_BY_SKU = gql`
       name
       sku
       description
-      list_price_amount
+      
       images
       variants {
         id
         name
         price
       }
+      productAttributeValues {
+        id
+        key
+        attribute {
+          id
+          label
+        }
+      }
       brand {
         id
         name
       }
+
+
+      list_price_amount
+      list_price_currency
+      relative_list_price_difference
+      price_range_from
+      price_range_to
+      price_range_currency
+      price_range_exact_amount
+      price_range_maximum_amount
+      price_range_minimum_amount
     }
   }
 `;

@@ -84,7 +84,7 @@ export default function CheckoutClientPage() {
   if (loadingCart) return <p className="text-center mt-6 text-white">جارٍ تحميل الكارت...</p>;
   if (!cart || !cart.lineItems.length) return <p className="text-center mt-6 text-white">الكارت فارغ</p>;
 
-  const subtotal = cart.lineItems.reduce((acc, item) => acc + item.product.list_price_amount * item.quantity, 0);
+  const subtotal = cart.lineItems.reduce((acc, item) => acc + item.product.price_range_exact_amount * item.quantity, 0);
   const shipping = 20;
   const total = subtotal + shipping;
 
@@ -132,7 +132,7 @@ export default function CheckoutClientPage() {
   
               {/* السعر */}
               <p className="text-right text-lg font-bold text-gray-900">
-                ${item.product.list_price_amount * item.quantity}
+                ${item.product.price_range_exact_amount * item.quantity}
               </p>
             </div>
           </div>

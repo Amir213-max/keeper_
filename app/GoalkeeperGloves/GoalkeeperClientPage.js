@@ -8,7 +8,7 @@ import ProductSlider from "../Componants/ProductSlider";
 import Sidebar from "../Componants/sidebar";
 import { useTranslation } from "../contexts/TranslationContext";
 import { graphqlClient } from "../lib/graphqlClient";
-import { GET_CATEGORIES_QUERY } from "../lib/queries"; // خليك تعمل query للـ categories في ملف queries
+import { GET_CATEGORIES_QUERY } from "../lib/queries";
 
 export default function GoalKeeperClientPage({ products, brands, attributeValues }) {
   const [categories, setCategories] = useState([]);
@@ -16,14 +16,19 @@ export default function GoalKeeperClientPage({ products, brands, attributeValues
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
+
+  // ✅ Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 20; // عدد المنتجات في كل صفحة
+
   const { t } = useTranslation();
 
-  // Fetch categories dynamically from API
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await graphqlClient.request(GET_CATEGORIES_QUERY);
-        setCategories(data.rootCategories || []); // صححت الاسم
+        setCategories(data.rootCategories || []);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -31,37 +36,41 @@ export default function GoalKeeperClientPage({ products, brands, attributeValues
     fetchCategories();
   }, []);
 
-  // Filter products
-  // Filter products
-useEffect(() => {
-  const result = products.filter((product) => {
-    const brandMatch =
-      !selectedBrand || product.brand?.name === selectedBrand;
+  // ✅ فلترة المنتجات
+  useEffect(() => {
+    const result = products.filter((product) => {
+      const brandMatch = !selectedBrand || product.brand?.name === selectedBrand;
+      const attrs = product.productAttributeValues || [];
 
-    const attrs = product.productAttributeValues || [];
+      const attributesMatch = Object.entries(selectedAttributes).every(
+        ([attrLabel, selectedVals]) => {
+          if (!selectedVals || selectedVals.length === 0) return true;
 
-    // ✅ فلترة الـ attributes صح:
-    const attributesMatch = Object.entries(selectedAttributes).every(
-      ([attrLabel, selectedVals]) => {
-        if (!selectedVals || selectedVals.length === 0) return true;
+          const selectedLower = selectedVals.map((v) => String(v).toLowerCase());
 
-        const selectedLower = selectedVals.map((v) => String(v).toLowerCase());
+          return attrs.some(
+            (pav) =>
+              String(pav.attribute?.label || pav.attribute?.key || "").toLowerCase() ===
+                String(attrLabel).toLowerCase() &&
+              selectedLower.includes(String(pav.key ?? "").toLowerCase())
+          );
+        }
+      );
 
-      
-        return attrs.some((pav) =>
-          String(pav.attribute?.label || pav.attribute?.key || '')
-            .toLowerCase() === String(attrLabel).toLowerCase() &&
-          selectedLower.includes(String(pav.key ?? '').toLowerCase())
-        );
-      }
-    );
+      return brandMatch && attributesMatch;
+    });
 
-    return brandMatch && attributesMatch;
-  });
+    setFilteredProducts(result);
+    setCurrentPage(1); // ✅ أول ما يغير الفلتر يرجع للصفحة الأولى
+  }, [products, selectedBrand, selectedAttributes]);
 
-  setFilteredProducts(result);
-}, [products, selectedBrand, selectedAttributes]);
+  // ✅ حساب المنتجات اللي هتتعرض في الصفحة الحالية
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
+  // ✅ عدد الصفحات
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   return (
     <div className="bg-[#373e3e]">
@@ -90,8 +99,9 @@ useEffect(() => {
             <FilterDropdown attributeValues={attributeValues} onFilterChange={setSelectedAttributes} />
           </div>
 
+          {/* ✅ المنتجات */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-2 sm:p-4">
-            {filteredProducts.map((product) => (
+            {currentProducts.map((product) => (
               <div
                 key={product.sku}
                 className="bg-gradient-to-br from-white to-neutral-200 rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
@@ -103,20 +113,65 @@ useEffect(() => {
                   className="p-4 flex flex-col flex-grow justify-between"
                 >
                   <div className="bg-neutral-400 text-amber-100 text-xs font-semibold w-fit px-3 py-1 rounded-full mb-3">
-                    {(product.rootCategories || []).map((cat) => cat.name).join(", ")}
+                    {(product.rootCategories || []).map((cat) => cat.name).join(" ")}
                   </div>
 
-                  <h3 className="text-base text-gray-700 text-center font-bold mb-1">{product.brand?.name}</h3>
+                  <h3 className="text-base text-gray-700 text-center font-bold mb-1">
+                    {product.brand?.name}
+                  </h3>
 
                   <p className="text-center text-sm text-gray-500 line-clamp-2 mb-3">{product.name}</p>
 
-                  <h2 className="text-center font-bold text-lg text-gray-800">
-                    ${product.list_price_amount}
-                  </h2>
+                  <div className="text-center">
+              <div className="line-through text-gray-500 text-sm">
+                 {product.list_price_currency} {product.list_price_amount}
+                
+              </div>
+              <span className="text-lg font-bold text-neutral-900">
+              {product.list_price_currency} {product.price_range_exact_amount}
+              </span>
+             
+            </div>
                 </Link>
               </div>
             ))}
           </div>
+
+         {/* ✅ Pagination Controls */}
+        {totalPages > 1 && (
+  <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+    <button
+      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+      disabled={currentPage === 1}
+      className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
+    >
+      Prev
+    </button>
+
+    {[...Array(totalPages)].map((_, idx) => (
+      <button
+        key={idx}
+        onClick={() => setCurrentPage(idx + 1)}
+        className={`px-3 sm:px-4 py-2 cursor-pointer rounded-lg text-sm sm:text-base ${
+          currentPage === idx + 1
+            ? "bg-[#1f2323] text-white"
+            : "bg-gray-100 text-gray-700"
+        }`}
+      >
+        {idx + 1}
+      </button>
+    ))}
+
+    <button
+      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
+    >
+      Next
+    </button>
+  </div>
+)}
+
         </div>
       </div>
     </div>

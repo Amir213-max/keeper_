@@ -88,28 +88,28 @@ export default function NavbarWithLinks() {
         </ul>
       </nav>
 
-      {/* Sidebar overlay */}
-      <div
-        className={clsx(
-          "fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-[100] transition-transform duration-300",
-          sidebarOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        <div className="flex justify-between items-center p-4 border-b">
-          <span className="text-xl font-bold">{t("Menu")}</span>
-          <button onClick={() => setSidebarOpen(false)}>
-            <FaTimes size={24} className="text-black" />
-          </button>
-        </div>
-        <ul className="flex flex-col gap-4 p-4 font-semibold text-gray-800 text-base">
-          <li><Link href="/GoalkeeperGloves" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Gloves')}</Link></li>
-          <li><Link href="/FootballBoots" onClick={() => setSidebarOpen(false)}>{t('Football Boots')}</Link></li>
-          <li><Link href="/Apparel" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Apparel')}</Link></li>
-          <li><Link href="/Equipmen" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Equipment')}</Link></li>
-          <li><Link href="/Teamsport" onClick={() => setSidebarOpen(false)}>{t('Teamsport')}</Link></li>
-          <li><Link href="/Sale" onClick={() => setSidebarOpen(false)}>{t('Sale')}</Link></li>
-        </ul>
-      </div>
+     {/* Sidebar overlay */}
+<div
+  className={clsx(
+    "fixed top-0 right-0 h-full w-64 bg-neutral-900 shadow-lg z-[100] transition-transform duration-300", // ✅ bg-gray-800 بدل bg-white
+    sidebarOpen ? "translate-x-0" : "translate-x-full"
+  )}
+>
+  <div className="flex justify-between items-center p-4 border-b border-gray-400">
+    <span className="text-xl font-bold text-white">{t("Menu")}</span> {/* ✅ النص أبيض */}
+    <button onClick={() => setSidebarOpen(false)}>
+      <FaTimes size={24} className="text-white" /> {/* ✅ زر الإغلاق أبيض */}
+    </button>
+  </div>
+  <ul className="flex flex-col gap-4 p-4 font-semibold text-white text-base"> {/* ✅ الروابط باللون الأبيض */}
+    <li><Link href="/GoalkeeperGloves" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Gloves')}</Link></li>
+    <li><Link href="/FootballBoots" onClick={() => setSidebarOpen(false)}>{t('Football Boots')}</Link></li>
+    <li><Link href="/Apparel" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Apparel')}</Link></li>
+    <li><Link href="/Equipmen" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Equipment')}</Link></li>
+    <li><Link href="/Teamsport" onClick={() => setSidebarOpen(false)}>{t('Teamsport')}</Link></li>
+    <li><Link href="/Sale" onClick={() => setSidebarOpen(false)}>{t('Sale')}</Link></li>
+  </ul>
+</div>
 
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>

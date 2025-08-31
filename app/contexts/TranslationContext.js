@@ -13,8 +13,17 @@ const dictionaries = {
 };
 
 export const TranslationProvider = ({ children }) => {
-  const [lang, setLang] = useState('en');
-  const [dict, setDict] = useState(dictionaries['en']);
+  // 👇 نخلي الافتراضي عربي
+  const [lang, setLang] = useState('ar');
+  const [dict, setDict] = useState(dictionaries['ar']);
+
+  useEffect(() => {
+    // 👇 يقرأ من لغة الجهاز، والـ fallback عربي
+    const browserLang = navigator.language.startsWith('en')
+      ? 'en'
+      : 'ar';
+    setLang(browserLang);
+  }, []);
 
   useEffect(() => {
     setDict(dictionaries[lang]);

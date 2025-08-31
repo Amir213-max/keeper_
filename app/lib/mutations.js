@@ -50,6 +50,14 @@ const GET_USER_CART = gql`
           id
           name
           list_price_amount
+      list_price_currency
+      relative_list_price_difference
+      price_range_from
+      price_range_to
+      price_range_currency
+      price_range_exact_amount
+      price_range_maximum_amount
+      price_range_minimum_amount
         }
       }
     }
@@ -79,6 +87,14 @@ const ADD_ITEM_TO_CART = gql`
         id
         name
         list_price_amount
+        list_price_currency
+        relative_list_price_difference
+        price_range_from
+        price_range_to
+        price_range_currency
+        price_range_exact_amount
+        price_range_maximum_amount
+        price_range_minimum_amount
       }
     }
   }
