@@ -67,7 +67,7 @@ export default async function Home() {
       <MultiSlider_2 />
       <Cover_3 />
       <MultiSlider_3 />
-      <MultiSlider_4 />
+      
       <Cover_4 />
       <Cover_5 />
       <MultiSlider_5 />

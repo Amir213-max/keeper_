@@ -29,23 +29,22 @@ export default function NavbarWithLinks() {
       <header className="w-full bg-black shadow py-4">
         <div className="navbar-container container mx-auto px-4 flex items-center justify-between">
           {/* يسار */}
-          <div className="navbar-left flex items-center gap-4 order-3 sm:order-1">
-            <button
-              className="text-white hover:text-amber-400 duration-200 cursor-pointer"
-              onClick={() => setSearchOpen(!searchOpen)}
-            >
-              <FaSearch size={20} />
-            </button>
 
-            {searchOpen && (
-              <SearchComponent onClose={() => setSearchOpen(false)} />
-            )}
+          <div className="navbar-left flex items-center gap-4 order-3 sm:order-1">
+
+          <button
+              className="menu-icon hidden text-white hover:text-red-600"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <FaBars size={22} />
+            </button>
             <button
               onClick={() => setCartOpen(true)}
               className="text-white hover:text-amber-400 duration-200 cursor-pointer"
             >
               <FaShoppingCart size={20} />
             </button>
+           
           </div>
 
           {/* وسط */}
@@ -59,11 +58,16 @@ export default function NavbarWithLinks() {
               <FaUser size={20} />
             </Link>
             <button
-              className="menu-icon hidden text-white hover:text-red-600"
-              onClick={() => setSidebarOpen(true)}
+              className="text-white hover:text-amber-400 duration-200 cursor-pointer"
+              onClick={() => setSearchOpen(!searchOpen)}
             >
-              <FaBars size={22} />
+              <FaSearch size={20} />
             </button>
+
+            {searchOpen && (
+              <SearchComponent onClose={() => setSearchOpen(false)} />
+            )}
+          
             <select
               onChange={(e) => setLang(e.target.value)}
               value={lang}
@@ -95,7 +99,7 @@ export default function NavbarWithLinks() {
     sidebarOpen ? "translate-x-0" : "translate-x-full"
   )}
 >
-  <div className="flex justify-between items-center p-4 border-b border-gray-400">
+  <div className="flex justify-between items-center p-4 border-b border-gray-700">
     <span className="text-xl font-bold text-white">{t("Menu")}</span> {/* ✅ النص أبيض */}
     <button onClick={() => setSidebarOpen(false)}>
       <FaTimes size={24} className="text-white" /> {/* ✅ زر الإغلاق أبيض */}

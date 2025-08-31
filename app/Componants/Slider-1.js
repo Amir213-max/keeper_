@@ -43,9 +43,7 @@ export default function MultiSlider() {
 
   return (
     <div className="w-full max-w-9xl mx-auto px-4 space-y-5 py-10">
-      <h2 className='text-white font-bold text-3xl text-center'>
-        TOP BRANDS,LATEST MODELS
-      </h2>
+      <h2 className='text-white font-bold text-3xl text-center'> {t("TOP BRANDS,LATEST MODELS")}</h2>
 
       <Splide key={lang} className='h-fit' options={sliderOptions} aria-label="عروض مميزة">
         {products.map((item) => (
