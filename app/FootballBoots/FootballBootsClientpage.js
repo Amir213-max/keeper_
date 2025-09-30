@@ -1,5 +1,6 @@
 "use client";
 
+import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import BrandsSlider from "../Componants/brandsSplide_1";
@@ -8,22 +9,84 @@ import ProductSlider from "../Componants/ProductSlider";
 import Sidebar from "../Componants/sidebar";
 import { useTranslation } from "../contexts/TranslationContext";
 import { graphqlClient } from "../lib/graphqlClient";
-import { GET_CATEGORIES_QUERY } from "../lib/queries";
+import { GET_CATEGORIES_QUERY, GET_WISHLIST_ITEMS } from "../lib/queries";
+import toast from "react-hot-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { ADD_TO_WISHLIST } from "../lib/mutations";
 
 export default function FootballClientPage({ products, brands, attributeValues }) {
+  const { user } = useAuth();
+
   const [categories, setCategories] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // بدل الاسم
   const [filteredProducts, setFilteredProducts] = useState(products);
 
-  // ✅ Pagination states
+  const [wishlistIds, setWishlistIds] = useState([]);
+  const wishlistId = user?.defaultWishlist?.id || user?.wishlists?.[0]?.id; 
+
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 20; // عدد المنتجات في الصفحة
+  const productsPerPage = 20;
 
   const { t } = useTranslation();
 
-  // Fetch categories dynamically
+  // Fetch Wishlist Items
+  useEffect(() => {
+    if (wishlistId) {
+      const fetchWishlist = async () => {
+        try {
+          const res = await graphqlClient.request(GET_WISHLIST_ITEMS, { wishlistId });
+          const ids = res?.wishlist?.items?.map((item) => String(item.product.id)) || [];
+          setWishlistIds(ids);
+        } catch (error) {
+          console.error("Error fetching wishlist items:", error);
+        }
+      };
+      fetchWishlist();
+    }
+  }, [wishlistId]);
+
+  // Handle Add to Wishlist
+  async function handleAddToWishlist(productId) {
+    if (!user) {
+      toast.error("❌ You must be logged in to add to wishlist");
+      return;
+    }
+
+    if (!wishlistId) {
+      toast.error("❌ Your wishlist ID is missing. Please reload or contact support.");
+      return;
+    }
+
+    if (wishlistIds.includes(String(productId))) {
+      toast("⚠️ This product is already in your wishlist");
+      return;
+    }
+
+    try {
+      const variables = {
+        input: {
+          wishlist_id: wishlistId,
+          product_id: productId,
+        },
+      };
+
+      const response = await graphqlClient.request(ADD_TO_WISHLIST, variables);
+
+      if (response?.addToWishlist?.success) {
+        toast.success("✅ Product added to wishlist!");
+        setWishlistIds((prev) => [...prev, String(productId)]);
+      } else {
+        toast.error(response?.addToWishlist?.message || "❌ Failed to add to wishlist");
+      }
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      toast.error("❌ Something went wrong!");
+    }
+  }
+
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -36,19 +99,18 @@ export default function FootballClientPage({ products, brands, attributeValues }
     fetchCategories();
   }, []);
 
-  // Filter products
+  // Filter products based on brand, attributes, and category ID
   useEffect(() => {
     const result = products.filter((product) => {
+      // Brand match
       const brandMatch = !selectedBrand || product.brand?.name === selectedBrand;
 
+      // Attributes match
       const attrs = product.productAttributeValues || [];
-
       const attributesMatch = Object.entries(selectedAttributes).every(
         ([attrLabel, selectedVals]) => {
           if (!selectedVals || selectedVals.length === 0) return true;
-
           const selectedLower = selectedVals.map((v) => String(v).toLowerCase());
-
           return attrs.some(
             (pav) =>
               String(pav.attribute?.label || pav.attribute?.key || "")
@@ -58,19 +120,22 @@ export default function FootballClientPage({ products, brands, attributeValues }
         }
       );
 
-      return brandMatch && attributesMatch;
+      // Category match by ID
+      const categoryMatch =
+        !selectedCategoryId ||
+        (product.rootCategories || []).some((cat) => cat.id === selectedCategoryId);
+
+      return brandMatch && attributesMatch && categoryMatch;
     });
 
     setFilteredProducts(result);
-    setCurrentPage(1); // ✅ لما يتغير الفلتر نرجع لأول صفحة
-  }, [products, selectedBrand, selectedAttributes]);
+    setCurrentPage(1);
+  }, [products, selectedBrand, selectedAttributes, selectedCategoryId]);
 
-  // ✅ حساب المنتجات اللي هتتعرض
+  // Pagination
   const indexOfLast = currentPage * productsPerPage;
   const indexOfFirst = indexOfLast - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
-
-  // عدد الصفحات
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   return (
@@ -80,14 +145,16 @@ export default function FootballClientPage({ products, brands, attributeValues }
         <div className="md:col-span-1 bg-[#1f2323] md:h-auto md:overflow-visible h-[50vh] overflow-y-auto">
           <Sidebar
             categories={categories}
-            onSelectCategory={(catName) => setSelectedCategory(catName)}
+            onSelectCategory={(catId) =>
+              setSelectedCategoryId(catId === selectedCategoryId ? null : catId)
+            }
           />
         </div>
 
         {/* Products Area */}
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className="text-4xl text-[#1f2323] p-2">
-            {selectedCategory ? t(selectedCategory) : t("Football Shoes")}
+            {selectedCategoryId ? `Category ${selectedCategoryId}` : t("Football Shoes")}
           </h1>
 
           <BrandsSlider
@@ -110,21 +177,35 @@ export default function FootballClientPage({ products, brands, attributeValues }
             {currentProducts.map((product) => (
               <div
                 key={product.sku}
-                className="bg-gradient-to-br from-white to-neutral-200 rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="bg-gradient-to-br from-white to-neutral-200 rounded-xl shadow-md overflow-hidden flex flex-col relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
-                <ProductSlider
-                  images={product.images}
-                  productName={product.name}
-                />
+                {/* Heart Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToWishlist(product.id);
+                  }}
+                  className="absolute top-2 right-2 z-10 p-1 rounded-full transition-all duration-300 hover:bg-white/20"
+                >
+                  <Heart
+                    className={`w-6 h-6 transition-colors duration-300 ${
+                      wishlistIds.includes(String(product.id))
+                        ? "stroke-red-500 fill-red-500"
+                        : "stroke-gray-400 fill-transparent hover:stroke-red-500 hover:fill-red-500"
+                    }`}
+                  />
+                </button>
 
+                {/* Product Slider */}
+                <ProductSlider images={product.images} productName={product.name} />
+
+                {/* Product Details */}
                 <Link
                   href={`/product/${encodeURIComponent(product.sku)}`}
                   className="p-4 flex flex-col flex-grow justify-between"
                 >
                   <div className="bg-neutral-400 text-amber-100 text-xs font-semibold w-fit px-3 py-1 rounded-full mb-3">
-                    {(product.rootCategories || [])
-                      .map((cat) => cat.name)
-                      .join(", ")}
+                    {(product.rootCategories || []).map((cat) => cat.name).join(", ")}
                   </div>
 
                   <h3 className="text-base text-gray-700 text-center font-bold mb-1">
@@ -136,57 +217,52 @@ export default function FootballClientPage({ products, brands, attributeValues }
                   </p>
 
                   <div className="text-center">
-              <div className="line-through text-gray-500 text-sm">
-                 {product.list_price_currency} {product.list_price_amount}
-                
-              </div>
-              <span className="text-lg font-bold text-neutral-900">
-              {product.list_price_currency} {product.price_range_exact_amount}
-              </span>
-             
-            </div>
-
-
+                    <div className="line-through text-gray-500 text-sm">
+                      {product.list_price_currency} {product.list_price_amount}
+                    </div>
+                    <span className="text-lg font-bold text-neutral-900">
+                      {product.list_price_currency} {product.price_range_exact_amount}
+                    </span>
+                  </div>
                 </Link>
               </div>
             ))}
           </div>
 
-          {/* ✅ Pagination Controls */}
-         {totalPages > 1 && (
-  <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
-    <button
-      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-      disabled={currentPage === 1}
-      className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
-    >
-      Prev
-    </button>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
+              >
+                Prev
+              </button>
 
-    {[...Array(totalPages)].map((_, idx) => (
-      <button
-        key={idx}
-        onClick={() => setCurrentPage(idx + 1)}
-        className={`px-3 sm:px-4 py-2 cursor-pointer rounded-lg text-sm sm:text-base ${
-          currentPage === idx + 1
-            ? "bg-[#1f2323] text-white"
-            : "bg-gray-100 text-gray-700"
-        }`}
-      >
-        {idx + 1}
-      </button>
-    ))}
+              {[...Array(totalPages)].map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(idx + 1)}
+                  className={`px-3 sm:px-4 py-2 cursor-pointer rounded-lg text-sm sm:text-base ${
+                    currentPage === idx + 1
+                      ? "bg-[#1f2323] text-white"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
 
-    <button
-      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
-    >
-      Next
-    </button>
-  </div>
-)}
-
+              <button
+                // onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { PRODUCTS_BY_CATEGORY_QUERY } from "../lib/queries";
 import TeamsportClientPage from "./TeamsportClientPage";
 
 
-const FOOTBALL_BOOTS_CATEGORY_ID = "11"; 
+const FOOTBALL_BOOTS_CATEGORY_ID = "21"; 
 // تقدر تعدل الـ ID أو تخليها Array وتعرض أكتر من SubCategory لو حابب
 
 const fetchProductsByCategory = async () => {

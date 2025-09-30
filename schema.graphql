@@ -1,14 +1,304 @@
- scalar JSON
-
  type User {
+  id: ID!
+  name: String!
+  email: String!
+ }
+
+type Query {
+  users: [User!]!
+}
+type User {
+    id: ID!
+    name: String! @field(resolver: "App\\GraphQL\\Resolvers\\TranslatableFieldsResolver@resolveGenericTranslatedField")
+    email: String!
+    phone: String
+    date_of_birth: String
+    gender: String
+    avatar: String
+    is_active: Boolean!
+    email_verified_at: String
+    created_at: String!
+    updated_at: String!
+    
+    # Relationships
+    orders: [Order!]! @hasMany
+    wishlists: [Wishlist!]! @hasMany
+    defaultWishlist: Wishlist @hasOne
+}
+
+type HomePageBlock {
+    id: ID!
+    type: String!
+    title: String
+    content: HomePageBlockContent @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveContent")
+    settings: HomePageBlockSettings @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveSettings")
+    is_active: Boolean!
+    sort_order: Int!
+    section: String!
+    display_limit: Int
+    background_color: String
+    text_color: String
+    css_class: String
+    created_at: String!
+    updated_at: String!
+}
+
+type HomePageBlockContent {
+    # Slider content
+    slides: [SliderSlide!]
+    
+    # Banner content
+    image: String
+    text: String
+    btn_text: String
+    btn_link: String
+    
+    # Products content
+    header: String
+    products: [ProductSelection!]
+    per_row: Int
+    max_products: Int
+    show_prices: Boolean
+    
+    # Video content
+    video_url: String
+    autoplay: Boolean
+    show_controls: Boolean
+    muted: Boolean
+    width: String
+    height: String
+}
+
+type HomePageBlockSettings {
+    # Slider settings
+    autoplay: Int
+    show_dots: Boolean
+    show_arrows: Boolean
+}
+
+type SliderSlide {
+    image: String!
+    text1: String!
+    text2: String
+    btn_text: String
+    btn_link: String
+}
+
+type ProductSelection {
+    product_id: ID!
+    display_order: Int!
+    product: Product @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveProduct")
+}
+ 
+ type Wishlist {
      id: ID!
-     name: String! @field(resolver: "App\\GraphQL\\Resolvers\\TranslatableFieldsResolver@resolveGenericTranslatedField")
-     email: String!
+     user_id: ID!
+     name: String!
+     description: String
+     is_public: Boolean!
+     is_default: Boolean!
+     items_count: Int!
+     total_value: Float!
      created_at: String!
      updated_at: String!
      
-      #Relationships
-     #orders: [Order!]! @hasMany
+     # Relationships
+     user: User @belongsTo
+     items: [WishlistItem!]! @hasMany
+     products: [Product!]! @belongsToMany
+ }
+ 
+ type WishlistItem {
+     id: ID!
+     wishlist_id: ID!
+     product_id: ID!
+     notes: String
+     priority: Int!
+     created_at: String!
+     updated_at: String!
+     
+     # Relationships
+     wishlist: Wishlist @belongsTo
+     product: Product @belongsTo
+ }
+ 
+ type WishlistResponse {
+     wishlist: Wishlist
+     message: String!
+ }
+ 
+ type WishlistItemResponse {
+     success: Boolean!
+     message: String!
+     wishlist_item: WishlistItem
+ }
+ 
+ type MoveToCartResponse {
+     success: Boolean!
+     message: String!
+     cart_item: CartItem
+     removed_from_wishlist: Boolean!
+ }
+ 
+ input CreateWishlistInput {
+     name: String!
+     description: String
+     is_public: Boolean
+     is_default: Boolean
+ }
+ 
+ input UpdateWishlistInput {
+     name: String
+     description: String
+     is_public: Boolean
+     is_default: Boolean
+ }
+ 
+ input AddToWishlistInput {
+     wishlist_id: ID!
+     product_id: ID!
+     notes: String
+     priority: Int
+ }
+ 
+ input UpdateWishlistItemInput {
+     notes: String
+     priority: Int
+ }
+ 
+input MoveToCartInput {
+    quantity: Int
+    remove_from_wishlist: Boolean
+}
+
+input HomePageBlockInput {
+    type: String!
+    title: String
+    content: String
+    settings: String
+    is_active: Boolean
+    sort_order: Int
+    section: String
+    display_limit: Int
+    background_color: String
+    text_color: String
+    css_class: String
+}
+
+input UpdateHomePageBlockInput {
+    type: String
+    title: String
+    content: String
+    settings: String
+    is_active: Boolean
+    sort_order: Int
+    section: String
+    display_limit: Int
+    background_color: String
+    text_color: String
+    css_class: String
+}
+
+input ReorderHomePageBlocksInput {
+    blocks: [ReorderBlockInput!]!
+}
+
+input ReorderBlockInput {
+    id: ID!
+    sort_order: Int!
+}
+
+input MarkNotificationAsReadInput {
+    notification_id: ID!
+}
+
+input MarkAllNotificationsAsReadInput {
+    user_id: ID!
+}
+
+input CreateNotificationInput {
+    type: String!
+    notifiable_type: String!
+    notifiable_id: ID!
+    data: String!
+}
+
+input NotificationFiltersInput {
+    read_status: String
+    type: String
+    notifiable_type: String
+    date_from: String
+    date_to: String
+}
+ 
+ type AuthPayload {
+     user: User!
+     token: String!
+     message: String!
+ }
+ 
+ type LogoutResponse {
+     success: Boolean!
+     message: String!
+ }
+ 
+ type ProfileUpdateResponse {
+     user: User!
+     message: String!
+ }
+ 
+ type PasswordChangeResponse {
+     success: Boolean!
+     message: String!
+ }
+ 
+ type PasswordResetResponse {
+     success: Boolean!
+     message: String!
+ }
+ 
+input SignupInput {
+    name: String!
+    email: String!
+    password: String!
+    password_confirmation: String
+    phone: String
+    date_of_birth: String
+    gender: String
+}
+ 
+ input SigninInput {
+     email: String!
+     password: String!
+ }
+ 
+ input UpdateProfileInput {
+     name: String
+     email: String
+     phone: String
+     date_of_birth: String
+     gender: String
+     avatar: String
+     current_password: String
+     password: String
+     password_confirmation: String
+ }
+ 
+ input ChangePasswordInput {
+     current_password: String!
+     password: String!
+     password_confirmation: String!
+ }
+ 
+ input ForgotPasswordInput {
+     email: String!
+ }
+ 
+ input ResetPasswordInput {
+     email: String!
+     token: String!
+     password: String!
+     password_confirmation: String!
  }
  
  input AddressInput {
@@ -35,28 +325,219 @@
      address: AddressInput
  }
  
- type Order {
+type Order {
+    id: ID!
+    number: String! @field(resolver: "App\\GraphQL\\Resolvers\\TranslatableFieldsResolver@resolveGenericTranslatedField")
+    reference_id: String
+    payment_status: String!
+    tags: [String!]! 
+    tracking_urls: [String!]! 
+    published: Boolean! 
+    created_at: String!
+    updated_at: String!
+    
+    # Pricing fields
+    subtotal: Float!
+    vat_amount: Float!
+    shipping_cost: Float!
+    shipping_type: String!
+    total_amount: Float!
+    
+    # Cart relationship
+    cart_id: ID
+    cart: Cart @belongsTo
+    
+    # Relationships
+    user: User @belongsTo
+     items: [OrderItem!]! @hasMany
+     payments: [OrderPayment!]! @hasMany
+     shipping_country: Country @belongsTo
+ }
+ 
+ type OrderItem {
      id: ID!
-     number: String! @field(resolver: "App\\GraphQL\\Resolvers\\TranslatableFieldsResolver@resolveGenericTranslatedField")
-     reference_id: String
-     payment_status: String!
-     tags: [String!]! 
-     tracking_urls: [String!]! 
-     published: Boolean! 
+     order_id: ID!
+     product_id: ID!
+     product_name: String!
+     product_sku: String!
+     quantity: Int!
+     unit_price: Float!
+     total_price: Float!
+     product_data: String
      created_at: String!
      updated_at: String!
      
      # Relationships
-     user: User @belongsTo
-     cart: Cart @belongsTo
+     order: Order @belongsTo
+     product: Product @belongsTo
+ }
+ 
+ type OrderPayment {
+     id: ID!
+     order_id: ID!
+     payment_method: String!
+     amount: Float!
+     currency: String!
+     status: String!
+     transaction_id: String
+     gateway_response: String
+     processed_at: String
+     created_at: String!
+     updated_at: String!
+     
+     # Relationships
+     order: Order @belongsTo
+ }
+ 
+ type TapPaymentResponse {
+     success: Boolean!
+     payment_url: String
+     transaction_id: String
+     order_id: ID
+     message: String
+     error: String
+     order: Order
+     totals: OrderTotals
+ }
+ 
+ type OrderTotals {
+     subtotal: Float!
+     vat_amount: Float!
+     vat_rate: Float!
+     shipping_cost: Float!
+     shipping_type: String!
+     total: Float!
+     currency: String!
+ }
+
+ type Country {
+     id: ID!
+     name: String!
+     code: String!
+     normal_shipping_cost: Float!
+     fast_shipping_cost: Float!
+     is_active: Boolean!
+     created_at: String!
+     updated_at: String!
+ }
+
+ type ShippingOption {
+     type: String!
+     name: String!
+     cost: Float!
+     estimated_days: String
+ }
+
+ type ShippingCalculation {
+     country: Country!
+     normal_shipping: ShippingOption!
+     fast_shipping: ShippingOption!
+ }
+
+type Setting {
+    id: ID!
+    key: String!
+    value: String
+    typed_value: String
+    type: String!
+    group: String!
+    description: String
+    is_public: Boolean!
+    created_at: String!
+    updated_at: String!
+}
+
+type Notification {
+    id: ID!
+    type: String!
+    notifiable_type: String!
+    notifiable_id: ID!
+    data: String!
+    read_at: String
+    created_at: String!
+    updated_at: String!
+    
+    # Relationships
+    notifiable: User @morphTo
+}
+
+type NotificationData {
+    title: String!
+    body: String!
+    icon: String
+    color: String
+    actions: [NotificationAction!]
+    additional_data: String
+}
+
+type NotificationAction {
+    label: String!
+    url: String
+    method: String
+    color: String
+}
+
+type NotificationStats {
+    total: Int!
+    unread: Int!
+    read: Int!
+    by_type: [NotificationTypeCount!]!
+}
+
+type NotificationTypeCount {
+    type: String!
+    count: Int!
+}
+
+ type ProductExportResponse {
+     success: Boolean!
+     message: String!
+     filename: String
+     file_url: String
+     total_products: Int!
+ }
+
+ type ProductImportResponse {
+     success: Boolean!
+     message: String!
+     imported_count: Int!
+     errors: [String!]!
+ }
+ 
+ type PaymentVerificationResponse {
+     success: Boolean!
+     message: String!
+     order: Order
+     payment: OrderPayment
+     tap_status: String
+ }
+ 
+ input TapPaymentInput {
+     cart_id: ID!
+     shipping_cost: Float
+     shipping_type: String
+     shipping_country_id: ID
+     shipping_address: AddressInput
+     billing_address: AddressInput
+     customer_email: String
+     customer_phone: String
+     redirect_url: String!
+     webhook_url: String!
+     tags: [String!]
+     tracking_urls: [String!]
+     published: Boolean
+ }
+ 
+ input VerifyPaymentInput {
+     order_id: ID!
  }
  
  input OrderInput {
      number: String!
      reference_id: String
      payment_status: String!
-     tags: JSON
-     tracking_urls: JSON
+     tags: String
+     tracking_urls: String
      published: Boolean
      keeper_id: ID
      payment_method_id: ID
@@ -94,7 +575,7 @@
      offer_is_list_price_based: Boolean
      offer_price_amount: Float
      offer_price_currency: String
-     display_prices: JSON
+     display_prices: String
      
      # Dates
      release_date: String
@@ -108,8 +589,8 @@
      video_url: String
      video_thumbnail: String
      video_thumbnail_url: String
-     categories: JSON
-     tier_prices: JSON
+     categories: String
+     tier_prices: String
      ets_identifier: String
      
      # Generic translatable fields (returns current locale or default)
@@ -238,7 +719,7 @@ type Brand {
      offer_is_list_price_based: Boolean
      offer_price_amount: Float
      offer_price_currency: String
-     display_prices: JSON
+     display_prices: String
      
      # Dates
      release_date: String
@@ -255,8 +736,8 @@ type Brand {
      video_thumbnail: String
      video_thumbnail_url: String
      description: String
-     categories: JSON
-     tier_prices: JSON
+     categories: String
+     tier_prices: String
      ets_identifier: String
      
      # Foreign Keys
@@ -381,10 +862,10 @@ type Brand {
      sorting: ProductSortingInfo!
  }
 
- type ProductFiltersInfo {
-     applied_filters: ProductFiltersInput!
-     total_filtered: Int!
- }
+type ProductFiltersInfo {
+    applied_filters: String!
+    total_filtered: Int!
+}
 
  type ProductSortingInfo {
      sort_by: String!
@@ -618,17 +1099,31 @@ type Brand {
      search: String
  }
 
- input CreateOrderFromCartInput {
-     payment_status: String!
-     payment_method_id: ID
-     tags: [String!]
-     tracking_urls: [String!]
-     published: Boolean
+input CreateOrderFromCartInput {
+    payment_status: String!
+    payment_method_id: ID
+    shipping_type: String
+    shipping_country_id: ID
+    tags: [String!]
+    tracking_urls: [String!]
+    published: Boolean
+    empty_cart: Boolean
+    reference_id: String
 }
+
+ input SettingInput {
+     key: String!
+     value: String
+     type: String
+     group: String
+     description: String
+     is_public: Boolean
+ }
 
 type Query {
      users: [User!]! @all(model: "App\\Models\\User")
      user(id: ID! @eq): User @find(model: "App\\Models\\User")
+     me: User @field(resolver: "App\\GraphQL\\Queries\\MeQuery")
  
      products(limit: Int, offset: Int): [Product!]! @field(resolver: "App\\GraphQL\\Queries\\ProductsQuery")
      productsWithCategories(limit: Int, offset: Int): [Product!]! @field(resolver: "App\\GraphQL\\Queries\\ProductsWithCategoriesQuery")
@@ -657,40 +1152,86 @@ type Query {
      
  
      brands: [Brand!]! @all(model: "App\\Models\\Brand")
-     brand(id: ID! @eq): Brand @find(model: "App\\Models\\Brand")
- 
-     productVariants: [ProductVariant!]! @all(model: "App\\Models\\ProductVariant")
-     productVariant(id: ID! @eq): ProductVariant @find(model: "App\\Models\\ProductVariant")
- 
-     rootCategories: [RootCategory!]! @all(model: "App\\Models\\RootCategory")
-     rootCategory(id: ID! @eq): RootCategory @find(model: "App\\Models\\RootCategory")
-     rootCategoryWithSubcategories(id: ID! @eq): RootCategory @field(resolver: "App\\GraphQL\\Queries\\RootCategoryWithSubcategoriesQuery")
-     allRootCategoriesWithSubcategories: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\AllRootCategoriesWithSubcategoriesQuery")
-     categoryHierarchy: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\CategoryHierarchyQuery")
-     mainRootCategories: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\MainRootCategoriesQuery")
- 
-     productAttributes: [ProductAttribute!]! @all(model: "App\\Models\\ProductAttribute")
-     productAttribute(id: ID! @eq): ProductAttribute @find(model: "App\\Models\\ProductAttribute")
- 
-     productAttributeValues: [ProductAttributeValue!]! @all(model: "App\\Models\\ProductAttributeValue")
-     productAttributeValue(id: ID! @eq): ProductAttributeValue @find(model: "App\\Models\\ProductAttributeValue")
- 
-     orders: [Order!]! @all(model: "App\\Models\\Order")
-     order(id: ID! @eq): Order @find(model: "App\\Models\\Order")
+    brand(id: ID! @eq): Brand @find(model: "App\\Models\\Brand")
+
+    productVariants: [ProductVariant!]! @all(model: "App\\Models\\ProductVariant")
+    productVariant(id: ID! @eq): ProductVariant @find(model: "App\\Models\\ProductVariant")
+
+    rootCategories: [RootCategory!]! @all(model: "App\\Models\\RootCategory")
+    rootCategory(id: ID! @eq): RootCategory @find(model: "App\\Models\\RootCategory")
+    rootCategoryWithSubcategories(id: ID! @eq): RootCategory @field(resolver: "App\\GraphQL\\Queries\\RootCategoryWithSubcategoriesQuery")
+    allRootCategoriesWithSubcategories: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\AllRootCategoriesWithSubcategoriesQuery")
+    categoryHierarchy: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\CategoryHierarchyQuery")
+    mainRootCategories: [RootCategory!]! @field(resolver: "App\\GraphQL\\Queries\\MainRootCategoriesQuery")
+
+    productAttributes: [ProductAttribute!]! @all(model: "App\\Models\\ProductAttribute")
+    productAttribute(id: ID! @eq): ProductAttribute @find(model: "App\\Models\\ProductAttribute")
+
+    productAttributeValues: [ProductAttributeValue!]! @all(model: "App\\Models\\ProductAttributeValue")
+    productAttributeValue(id: ID! @eq): ProductAttributeValue @find(model: "App\\Models\\ProductAttributeValue")
+
+    orders: [Order!]! @all(model: "App\\Models\\Order")
+    order(id: ID! @eq): Order @find(model: "App\\Models\\Order")
+    
+    # Cart queries
+    carts: [Cart!]! @all(model: "App\\Models\\Cart")
+    cart(id: ID! @eq): Cart @find(model: "App\\Models\\Cart")
+    userCart(user_id: ID! @eq): Cart @field(resolver: "App\\GraphQL\\Queries\\UserCartQuery")
+    
+    # Cart item queries
+    cartItems: [CartItem!]! @all(model: "App\\Models\\CartItem")
+    cartItem(id: ID! @eq): CartItem @find(model: "App\\Models\\CartItem")
+    cartItemsByCart(cart_id: ID! @eq): [CartItem!]! @field(resolver: "App\\GraphQL\\Queries\\CartItemsByCartQuery")
      
-     # Cart queries
-     carts: [Cart!]! @all(model: "App\\Models\\Cart")
-     cart(id: ID! @eq): Cart @find(model: "App\\Models\\Cart")
-     userCart(user_id: ID! @eq): Cart @field(resolver: "App\\GraphQL\\Queries\\UserCartQuery")
+    # Wishlist queries
+    wishlists(is_public: Boolean, is_default: Boolean, sort_by: String, sort_order: String, limit: Int, offset: Int): [Wishlist!]! @field(resolver: "App\\GraphQL\\Queries\\UserWishlistsQuery")
+    wishlist(id: ID!): Wishlist @field(resolver: "App\\GraphQL\\Queries\\WishlistQuery")
+     publicWishlists(user_id: ID, sort_by: String, sort_order: String, limit: Int, offset: Int): [Wishlist!]! @field(resolver: "App\\GraphQL\\Queries\\PublicWishlistsQuery")
      
-     # Cart item queries
-     cartItems: [CartItem!]! @all(model: "App\\Models\\CartItem")
-     cartItem(id: ID! @eq): CartItem @find(model: "App\\Models\\CartItem")
-     cartItemsByCart(cart_id: ID! @eq): [CartItem!]! @field(resolver: "App\\GraphQL\\Queries\\CartItemsByCartQuery")
+     # Country and shipping queries
+     countries: [Country!]! @all(model: "App\\Models\\Country")
+     country(id: ID! @eq): Country @find(model: "App\\Models\\Country")
+     activeCountries: [Country!]! @field(resolver: "App\\GraphQL\\Queries\\ActiveCountriesQuery")
+     calculateShipping(country_id: ID!): ShippingCalculation! @field(resolver: "App\\GraphQL\\Queries\\CalculateShippingQuery")
+     
+    # Settings queries
+    settings: [Setting!]! @all(model: "App\\Models\\Setting")
+    setting(id: ID! @eq): Setting @find(model: "App\\Models\\Setting")
+    settingByKey(key: String! @eq): Setting @find(model: "App\\Models\\Setting")
+    publicSettings: [Setting!]! @field(resolver: "App\\GraphQL\\Queries\\PublicSettingsQuery")
+    settingsByGroup(group: String! @eq): [Setting!]! @field(resolver: "App\\GraphQL\\Queries\\SettingsByGroupQuery")
+    
+    # Homepage blocks queries
+    homePageBlocks: [HomePageBlock!]! @all(model: "App\\Models\\HomePageBlock")
+    homePageBlock(id: ID! @eq): HomePageBlock @find(model: "App\\Models\\HomePageBlock")
+    activeHomePageBlocks(section: String): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\ActiveHomePageBlocksQuery")
+    homePageBlocksByType(type: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksByTypeQuery")
+    homePageBlocksBySection(section: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksBySectionQuery")
+    homePageBlocksByTypeAndSection(type: String!, section: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksByTypeAndSectionQuery")
+    sliderBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\SliderBlocksQuery")
+    bannerBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\BannerBlocksQuery")
+    productBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\ProductBlocksQuery")
+    videoBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\VideoBlocksQuery")
+    
+    # Notifications queries
+    notifications(filters: NotificationFiltersInput): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\NotificationsQuery")
+    notification(id: ID! @eq): Notification @find(model: "App\\Models\\Notification")
+    userNotifications(user_id: ID!, filters: NotificationFiltersInput): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\UserNotificationsQuery")
+    unreadNotifications(user_id: ID!): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\UnreadNotificationsQuery")
+    notificationStats(user_id: ID!): NotificationStats! @field(resolver: "App\\GraphQL\\Queries\\NotificationStatsQuery")
  }
 
  
  type Mutation {
+     # Authentication mutations
+     signup(input: SignupInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\SignupMutation")
+     signin(input: SigninInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\SigninMutation")
+    logout: LogoutResponse! @field(resolver: "App\\GraphQL\\Mutations\\LogoutMutation")
+    updateProfile(input: UpdateProfileInput! @spread): ProfileUpdateResponse! @field(resolver: "App\\GraphQL\\Mutations\\UpdateProfileMutation")
+    changePassword(input: ChangePasswordInput! @spread): PasswordChangeResponse! @field(resolver: "App\\GraphQL\\Mutations\\ChangePasswordMutation")
+     forgotPassword(input: ForgotPasswordInput! @spread): PasswordResetResponse! @field(resolver: "App\\GraphQL\\Mutations\\ForgotPasswordMutation")
+     resetPassword(input: ResetPasswordInput! @spread): PasswordResetResponse! @field(resolver: "App\\GraphQL\\Mutations\\ResetPasswordMutation")
+     
      createProduct(input: ProductInput! @spread): Product @create(model: "App\\Models\\Product")
      updateProduct(id: ID!, input: ProductInput! @spread): Product @update(model: "App\\Models\\Product")
      deleteProduct(id: ID!): Product @delete(model: "App\\Models\\Product")
@@ -715,18 +1256,54 @@ type Query {
      updateProductAttributeValue(id: ID!, input: ProductAttributeValueInput! @spread): ProductAttributeValue @update(model: "App\\Models\\ProductAttributeValue")
      deleteProductAttributeValue(id: ID!): ProductAttributeValue @delete(model: "App\\Models\\ProductAttributeValue")
      
-     # Cart mutations
-     createCart(input: CartInput! @spread): Cart @create(model: "App\\Models\\Cart")
-     updateCart(id: ID!, input: CartInput! @spread): Cart @update(model: "App\\Models\\Cart")
-     deleteCart(id: ID!): Cart @delete(model: "App\\Models\\Cart")
+    # Cart mutations
+    createCart(input: CartInput! @spread): Cart @create(model: "App\\Models\\Cart")
+    updateCart(id: ID!, input: CartInput! @spread): Cart @update(model: "App\\Models\\Cart")
+    deleteCart(id: ID!): Cart @delete(model: "App\\Models\\Cart")
      
-     # Cart item mutations
-     addItemToCart(input: AddCartItemInput! @spread): CartItem @field(resolver: "App\\GraphQL\\Mutations\\AddItemToCartMutation")
-     updateCartItem(id: ID!, input: UpdateCartItemInput! @spread): CartItem @update(model: "App\\Models\\CartItem")
-     removeItemFromCart(id: ID!): CartItem @delete(model: "App\\Models\\CartItem")
+    # Cart item mutations
+    addItemToCart(input: AddCartItemInput! @spread): CartItem @field(resolver: "App\\GraphQL\\Mutations\\AddItemToCartMutation")
+    updateCartItem(id: ID!, input: UpdateCartItemInput! @spread): CartItem @update(model: "App\\Models\\CartItem")
+    removeItemFromCart(id: ID! @eq): CartItem @delete(model: "App\\Models\\CartItem", key:"id")
      
-     # Cart operations
-     emptyCart(cart_id: ID!): Cart @field(resolver: "App\\GraphQL\\Mutations\\EmptyCartMutation")
-     createOrderFromCart(cart_id: ID!, input: CreateOrderFromCartInput! @spread): Order @field(resolver: "App\\GraphQL\\Mutations\\CreateOrderFromCartMutation")
+    # Cart operations
+    emptyCart(cart_id: ID!): Cart @field(resolver: "App\\GraphQL\\Mutations\\EmptyCartMutation")
+    createOrderFromCart(cart_id: ID!, input: CreateOrderFromCartInput! @spread): Order @field(resolver: "App\\GraphQL\\Mutations\\CreateOrderFromCartMutation")
+     
+    # Tap Payment mutations
+    createOrderWithTapPayment(input: TapPaymentInput! @spread): TapPaymentResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateOrderWithTapPaymentMutation")
+    verifyTapPayment(input: VerifyPaymentInput! @spread): PaymentVerificationResponse! @field(resolver: "App\\GraphQL\\Mutations\\VerifyTapPaymentMutation")
+     
+    # Wishlist mutations
+    createWishlist(input: CreateWishlistInput! @spread): WishlistResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateWishlistMutation")
+    updateWishlist(id: ID!, input: UpdateWishlistInput! @spread): WishlistResponse! @field(resolver: "App\\GraphQL\\Mutations\\UpdateWishlistMutation")
+    deleteWishlist(id: ID!): LogoutResponse! @field(resolver: "App\\GraphQL\\Mutations\\DeleteWishlistMutation")
+    addToWishlist(input: AddToWishlistInput! @spread): WishlistItemResponse! @field(resolver: "App\\GraphQL\\Mutations\\AddToWishlistMutation")
+    removeFromWishlist(id: ID!): LogoutResponse! @field(resolver: "App\\GraphQL\\Mutations\\RemoveFromWishlistMutation")
+    updateWishlistItem(id: ID!, input: UpdateWishlistItemInput! @spread): WishlistItemResponse! @field(resolver: "App\\GraphQL\\Mutations\\UpdateWishlistItemMutation")
+    moveToCart(id: ID!, input: MoveToCartInput! @spread): MoveToCartResponse! @field(resolver: "App\\GraphQL\\Mutations\\MoveToCartMutation")
+     
+     # Settings mutations
+     createSetting(input: SettingInput! @spread): Setting @create(model: "App\\Models\\Setting")
+     updateSetting(id: ID!, input: SettingInput! @spread): Setting @update(model: "App\\Models\\Setting")
+     deleteSetting(id: ID!): Setting @delete(model: "App\\Models\\Setting")
+     setSettingValue(key: String!, value: String!, type: String, group: String, description: String, is_public: Boolean): Setting! @field(resolver: "App\\GraphQL\\Mutations\\SetSettingValueMutation")
+     
+    # Product Import/Export mutations
+    exportProducts(filters: ProductFiltersInput, format: String): ProductExportResponse! @field(resolver: "App\\GraphQL\\Mutations\\ExportProductsMutation")
+    importProducts(file: String!, update_existing: Boolean): ProductImportResponse! @field(resolver: "App\\GraphQL\\Mutations\\ImportProductsMutation")
+    
+    # Homepage blocks mutations
+    createHomePageBlock(input: HomePageBlockInput! @spread): HomePageBlock @create(model: "App\\Models\\HomePageBlock")
+    updateHomePageBlock(id: ID!, input: UpdateHomePageBlockInput! @spread): HomePageBlock @update(model: "App\\Models\\HomePageBlock")
+    deleteHomePageBlock(id: ID!): HomePageBlock @delete(model: "App\\Models\\HomePageBlock")
+    reorderHomePageBlocks(input: ReorderHomePageBlocksInput! @spread): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Mutations\\ReorderHomePageBlocksMutation")
+    toggleHomePageBlockStatus(id: ID!): HomePageBlock @field(resolver: "App\\GraphQL\\Mutations\\ToggleHomePageBlockStatusMutation")
+    
+    # Notifications mutations
+    createNotification(input: CreateNotificationInput! @spread): Notification @create(model: "App\\Models\\Notification")
+    markNotificationAsRead(input: MarkNotificationAsReadInput! @spread): Notification! @field(resolver: "App\\GraphQL\\Mutations\\MarkNotificationAsReadMutation")
+    markAllNotificationsAsRead(input: MarkAllNotificationsAsReadInput! @spread): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\MarkAllNotificationsAsReadMutation")
+    deleteNotification(id: ID!): Notification @delete(model: "App\\Models\\Notification")
+    clearAllNotifications(user_id: ID!): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\ClearAllNotificationsMutation")
  }
- 

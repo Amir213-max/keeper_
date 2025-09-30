@@ -1,81 +1,55 @@
 
-'use client'; 
 
-import React from 'react'
-
-
-import '@splidejs/splide/dist/css/splide.min.css';
-import Card_1 from '../Componants/card';
-import Card_2 from '../Componants/card_2';
-import BrandSplide_1 from '../Componants/brandsSplide_1';
-
-import FilterDropdown from '../Componants/CheckboxDropdown ';
-import { useTranslation } from '../contexts/TranslationContext';
+import { graphqlClient } from "../lib/graphqlClient";
+import { PRODUCTS_SALES_QUERY } from "../lib/queries";
+import SalesClientPage from "./SalesClientPage";
 
 
-export default function page() {
-const {t , lang} = useTranslation()
+const fetchProductsByBadges = async () => {
+  const data = await graphqlClient.request(PRODUCTS_SALES_QUERY);
+
+  let products = data?.products || [];
+
+  // ✅ فلترة المنتجات اللي عندها productBadges
+  products = products.filter(
+    (product) => product.productBadges && product.productBadges.length > 0
+  );
+
+  return products;
+};
+
+export default async function Page() {
+  const products = await fetchProductsByBadges();
+
+  // 🟢 تجهيز الـ Attributes (زي اللون / المقاس)
+  const attributeMap = {};
+  products.forEach((product) => {
+    if (product.productAttributeValues) {
+      product.productAttributeValues.forEach((attr) => {
+        const key = attr.attribute?.label;
+        const value = attr.key;
+
+        if (key && value) {
+          if (!attributeMap[key]) attributeMap[key] = new Set();
+          attributeMap[key].add(value);
+        }
+      });
+    }
+  });
+
+  const attributeValues = Object.entries(attributeMap).map(([attribute, values]) => ({
+    attribute,
+    values: Array.from(values),
+  }));
+
+  // 🟢 تجهيز الـ Brands
+  const brands = [...new Set(products.map((p) => p.brand?.name).filter(Boolean))];
 
   return (
-    <div className='bg-[#373e3e]'>
-
-<div className="grid pt-4 grid-cols-4  ">
-  <div className="col-span-1 grid-cols-4 gap-3 bg-[#1f2323]">
-    {/* <Card_1 /> */}
-<ul className='flex w-full   flex-col  '>
-<li className='cursor-pointer '>
-
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Gloves")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Football Boots")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Apparel")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Goalkeeper Equipment")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Teamsport")}</h2>
-  </a>
-</li>
-<li className='cursor-pointer '>
-  <a>
-  <h2 className='text-2xl p-4 w-full hover:bg-[#303434] '>{t("Sale")}</h2>
-  </a>
-</li>
-
-</ul>
-   
-  </div>
-  <div className="col-span-3 p-4 bg-white">
-
-    <h1 className='text-4xl text-[#1f2323] p-2'> {t("Goalkeeper Apparel")}</h1>
-    
-    <div className='flex mb-4 gap-3'>
-
-  
-    
-    </div>
-    <div className='grid grid-cols-4 justify-center gap-3'>
-  
- 
-  
-    </div>
-    
-  </div>
-</div>
-    </div>
-
-  )
+    <SalesClientPage
+      products={products}
+      brands={brands}
+      attributeValues={attributeValues}
+    />
+  );
 }

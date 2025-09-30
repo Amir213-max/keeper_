@@ -19,8 +19,13 @@ export async function createOrderFromCurrentCart() {
   
       // 3️⃣ استدعاء الـ mutation مع cart_id
       const response = await graphqlClient.request(CREATE_ORDER_FROM_CART, {
-        cart_id: cart.id,
-        input,
+        cart_id: cart_id,  // ⚠️ cart_id مطلوب
+        input: {
+          payment_status: "PROCESSING",
+          shipping_type: "normal",
+          empty_cart: true,
+          reference_id: "WEB-TEST-123"
+        }
       });
   
       console.log("✅ Order Created:", response.createOrderFromCart);
@@ -47,6 +52,7 @@ const GET_USER_CART = gql`
         quantity
         product {
           images
+          offer_code
           id
           name
           list_price_amount
@@ -63,6 +69,25 @@ const GET_USER_CART = gql`
     }
   }
 `;
+
+
+
+export const ADD_TO_WISHLIST = gql`
+  mutation AddToWishlist($input: AddToWishlistInput!) {
+    addToWishlist(input: $input) {
+      success
+      message
+      wishlist_item {
+        id
+        product {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 
 const CREATE_CART = gql`
   mutation CreateCart($input: CartInput!) {
@@ -81,7 +106,6 @@ const ADD_ITEM_TO_CART = gql`
   mutation AddItemToCart($input: AddCartItemInput!) {
     addItemToCart(input: $input) {
       id
-       
       quantity
       product {
         id
@@ -100,17 +124,29 @@ const ADD_ITEM_TO_CART = gql`
   }
 `;
 
-
 export const CREATE_ORDER_FROM_CART = gql`
-  mutation CreateOrderFromCart($cart_id: ID!, $input: CreateOrderFromCartInput!) {
-    createOrderFromCart(cart_id: $cart_id, input: $input) {
-      id
-      number
-      payment_status
+mutation CreateOrderFromCart($cart_id: ID!, $input: CreateOrderFromCartInput!) {
+  createOrderFromCart(cart_id: $cart_id, input: $input) {
+    id
+    user{
+      name
+      name
+      email
+      phone
+    gender
       created_at
+      updated_at
+      
     }
+    number
+    shipping_type
+    shipping_cost
+    total_amount
+    vat_amount
   }
+}
 `;
+
 
 
 export const EMPTY_CART = gql`
@@ -133,6 +169,96 @@ export const REMOVE_ITEM_FROM_CART = gql`
     }
   }
 `;
+
+
+
+// 🔹 Signup
+export const SIGNUP_MUTATION = gql`
+  mutation Signup($input: SignupInput!) {
+    signup(input: $input) {
+      token
+      user {
+        id
+        name
+        email
+        phone
+        date_of_birth
+        gender
+      }
+      message
+    }
+  }
+`;
+
+export const SIGNIN_MUTATION = gql`
+  mutation Signin($input: SigninInput!) {
+    signin(input: $input) {
+      token
+      user {
+        id
+        wishlists{
+          id
+        }
+        defaultWishlist{
+          id
+        }
+        name
+        email
+        phone
+        date_of_birth
+        gender
+      }
+      message
+    }
+  }
+`;
+
+export const CREATE_TAP_PAYMENT = gql`
+mutation CreateOrderWithTapPayment($input: TapPaymentInput!) {
+  createOrderWithTapPayment(input: $input) {
+    success
+    payment_url
+    
+    order_id
+    transaction_id
+    message
+    order {
+      user{
+        id
+        email
+        name
+        phone
+        date_of_birth
+        gender
+        avatar
+        email_verified_at
+     
+        created_at
+        updated_at
+        
+      }
+      id
+      number
+      shipping_type
+      shipping_cost
+      total_amount
+      
+     
+    }
+  }
+}
+`;
+// 🔹 Example: Create Order from Cart
+export const CREATE_ORDER_MUTATION = gql`
+  mutation CreateOrderFromCart($cart_id: ID!, $input: CreateOrderFromCartInput!) {
+    createOrderFromCart(cart_id: $cart_id, input: $input) {
+      id
+      status
+      total
+    }
+  }
+`;
+
 
 // Function to execute mutation
 export async function removeItemFromCart(id) {
@@ -197,7 +323,8 @@ export async function addToCartTempUser(productId, quantity = 1, unitPrice = 0) 
       cart_id: cartId,
       product_id: productId,
       quantity,
-      unit_price: unitPrice
+      unit_price: unitPrice ,
+     
      
     };
     console.log("➕ [Add Item Input]:", addItemInput);

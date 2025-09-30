@@ -1,9 +1,12 @@
 // لا تضع "use client" هنا
+import { sendTestNotification } from "@/utils/sendTestNotification";
+import { subscribeUser } from "@/utils/subscribeUser";
 import Cover_2 from "./Componants/cover-2";
 import Cover_3 from "./Componants/cover-3";
 import Cover_4 from "./Componants/cover-4";
 import Cover_5 from "./Componants/Cover-5";
 import Cover_6 from "./Componants/Cover-6";
+import HomePageBlocks from "./Componants/HomePageBlocks";
 import Cover from "./Componants/imgCover";
 import ProductSlider from "./Componants/ProductSlider";
 
@@ -61,8 +64,16 @@ export default async function Home() {
       </div> */}
 
       {/* باقي الأقسام */}
-      <Cover />
-      <MultiSlider />
+      {/* <button className="p-5 bg-amber-300 text-white hover:bg-amber-500 " onClick={subscribeUser}>اشترك في الإشعارات</button> */}
+      {/* <Cover /> */}
+      <HomePageBlocks />
+      {/* <button
+      onClick={sendTestNotification}
+      className="px-4 py-2 bg-blue-500 text-white rounded"
+    >
+      Send Test Notification
+    </button> */}
+      {/* <MultiSlider />
       <Cover_2 />
       <MultiSlider_2 />
       <Cover_3 />
@@ -71,8 +82,8 @@ export default async function Home() {
       <Cover_4 />
       <Cover_5 />
       <MultiSlider_5 />
-      <Cover_6 />
-      <MultiSlider_6 />
+      <Cover_6 /> */}
+      {/* <MultiSlider_6 /> */}
       {/* <MultiSlider_7 />
       <MultiSlider_2 /> */}
     </div>

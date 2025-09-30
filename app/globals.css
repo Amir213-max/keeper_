@@ -15,7 +15,15 @@
   .animate-fade-in {
     animation: fade-in 0.3s ease-out forwards;
   }
-
+  @keyframes slide-in {
+    0% { transform: translateX(120%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.4s ease-out;
+  }
+  
   @keyframes slide-in-right {
     0% {
       transform: translateX(100%);

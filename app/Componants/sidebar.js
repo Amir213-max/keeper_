@@ -8,15 +8,19 @@ export default function Sidebar({ categories, onSelectCategory }) {
     <ul
       className="
         flex flex-col text-white
-        h-[50vh] overflow-y-auto   /* نص الشاشة والتمرير */
-        md:h-auto md:overflow-visible /* على الشاشات الكبيرة يرجع طبيعي */
+        h-[50vh] overflow-y-auto
+        md:h-auto md:overflow-visible
       "
     >
       {categories.map((root) => (
         <li key={root.id} className="border-b border-gray-700">
+          {/* Root category */}
           <div
             className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-800"
-            onClick={() => setOpenDropdown(openDropdown === root.id ? null : root.id)}
+            onClick={() => {
+              setOpenDropdown(openDropdown === root.id ? null : root.id);
+              onSelectCategory(root.id); // إرسال الـ id للفلترة
+            }}
           >
             {root.name}
             {root.subCategories.length > 0 && (
@@ -24,15 +28,16 @@ export default function Sidebar({ categories, onSelectCategory }) {
             )}
           </div>
 
+          {/* Subcategories */}
           {openDropdown === root.id && root.subCategories.length > 0 && (
             <ul className="bg-gray-700">
               {root.subCategories.map((sub) => (
                 <li
                   key={sub.id}
                   className="px-6 py-2 hover:bg-gray-600 cursor-pointer"
-                  onClick={() => onSelectCategory(sub.name)}
+                  onClick={() => onSelectCategory(sub.id)} // إرسال الـ id للفلترة
                 >
-                  {sub.name} 
+                  {sub.name}
                 </li>
               ))}
             </ul>

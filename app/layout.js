@@ -9,6 +9,10 @@ import { TranslationProvider } from "./contexts/TranslationContext";
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
+import RegisterSWClient from "./Componants/RegisterSWClient";
+import { Providers } from "./provider";
+import { AuthProvider } from "./contexts/AuthContext";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +30,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children  }) {
+ 
 
   return (
     
@@ -41,8 +46,12 @@ export default function RootLayout({ children  }) {
 
 <ChatProvider>
   <CartProvider>
-
-        {children}
+<AuthProvider>
+{children}
+</AuthProvider>
+       
+        <RegisterSWClient />
+        <Toaster position="top-right"    toastOptions={{ duration: 3000 }}  />
   </CartProvider>
 <ChatSidebar />
 </ChatProvider>

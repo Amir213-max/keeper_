@@ -15,6 +15,53 @@ export const MAIN_ROOT_CATEGORIES_QUERY = gql`
     }
   }
 `;
+export const GET_WISHLIST_ITEMS = gql`
+query GetWishlistItems($wishlistId: ID!) {
+  wishlist(id: $wishlistId) {
+    id
+    name
+    items {
+      id
+      product {
+        id
+        name
+        sku
+        images
+        list_price_amount
+        list_price_currency
+        price_range_exact_amount
+        brand {
+          name
+        }
+        rootCategories {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
+
+export const GET_ME = gql`
+  query Me {
+   
+      me {
+        id
+        name
+        email
+      defaultWishlist{
+        id
+      }
+        wishlists{
+          id
+          name
+      }
+    }
+  }
+`;
 
 // ✅ جلب المنتجات (مع إمكانية تحديد limit/offset)
 export const PRODUCTS_QUERY = gql`
@@ -49,6 +96,9 @@ query ProductsByCategory($categoryId: ID!) {
    
     slug
     products {
+      productBadges{
+        label
+      }
       list_price_amount
       list_price_currency
       relative_list_price_difference
@@ -162,10 +212,60 @@ query PRODUCTS_SHOES_QUERY {
   }
 }
 
+`;
+
+
+
+
+export const PRODUCTS_SALES_QUERY = gql` 
+
+
+query PRODUCTS_SALES_QUERY {
+  products {
+    productBadges{
+      label
+    }
+    list_price_amount
+    list_price_currency
+    relative_list_price_difference
+    price_range_from
+    price_range_to
+    price_range_currency
+    price_range_exact_amount
+    price_range_maximum_amount
+    price_range_minimum_amount
+    id
+    description
+    sku
+    name
+    are_shoes
+    list_price_amount
+    brand {
+      id
+      name
+    }
+    productAttributeValues {
+      id
+      key
+      attribute {
+        id
+        label
+      }
+    }
+    images
+    rootCategories {
+      id
+      name
+    }
+  }
+}
+
 
 
 
 `;
+
+
 // ✅ جلب تفاصيل منتج واحد بالـ ID
 export const PRODUCT_QUERY = gql`
   query Product($id: ID!) {
@@ -204,7 +304,8 @@ export const GET_PRODUCT_BY_SKU = gql`
       id
       name
       sku
-      description
+      description_ar
+      description_en
       
       images
       variants {
@@ -235,6 +336,259 @@ export const GET_PRODUCT_BY_SKU = gql`
       price_range_exact_amount
       price_range_maximum_amount
       price_range_minimum_amount
+    }
+  }
+`;
+
+
+
+export const GET_DEFAULT_WISHLIST = gql`
+  query {
+    wishlists(is_default: true) {
+      id
+      name
+    }
+  }
+`;
+
+export const RECOMMENDED_PRODUCTS_QUERY = `
+  query GetRecommendedProducts($productId: ID!) {
+    productsWithCategoryRecommendations(product_id: $productId) {
+      recommended_products {
+        id
+        name
+        sku
+        images
+        price_range_from
+        brand {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+export const GET_ORDERS = `
+query GetOrders {
+  orders {
+    id
+    number
+    reference_id
+    payment_status
+    tags
+    tracking_urls
+    published
+    created_at
+    updated_at
+    subtotal
+    vat_amount
+    shipping_cost
+    shipping_type
+    total_amount
+    cart_id
+    user {
+      id
+      name
+      email
+    }
+    items {
+      id
+      order_id
+      product_id
+      product_name
+      product_sku
+      quantity
+      unit_price
+      total_price
+      product_data
+      
+      
+      product {
+       id
+    sku
+    sort_order
+    is_online
+    printable
+    are_shoes
+    can_be_pre_ordered
+    published
+    list_price_amount
+    list_price_currency
+    relative_list_price_difference
+    price_range_from
+    price_range_to
+    price_range_currency
+    price_range_exact_amount
+    price_range_maximum_amount
+    price_range_minimum_amount
+    offer_code
+    offer_color_css
+    offer_countdown_to
+    offer_discount_percentage
+    offer_is_list_price_based
+    offer_price_amount
+    offer_price_currency
+    display_prices
+    release_date
+    created_at
+    updated_at
+    shoe_size_region
+    number_of_images
+    video
+    video_url
+    video_thumbnail
+    video_thumbnail_url
+    categories
+    tier_prices
+    ets_identifier
+    name
+    name_without_brand
+    url
+    brand_name
+    brand_logo_url
+    description
+    name_en
+    name_ar
+    name_without_brand_en
+    name_without_brand_ar
+    url_en
+    url_ar
+    brand_name_en
+    brand_name_ar
+    brand_logo_url_en
+    brand_logo_url_ar
+    description_en
+    description_ar
+    brand {
+      id
+      name
+    
+    }
+    variants {
+      id
+     
+    }
+    rootCategories {
+      id
+      name
+      slug
+    }
+    productBadges {
+      id
+     label
+      color
+    }
+    productAttributeValues {
+      id
+      attribute{
+        label
+      }
+    }
+    images
+      }
+      quantity
+    
+    }
+
+   
+  }
+}
+
+`;
+
+
+
+
+
+export const GET_ACTIVE_HOME_PAGE_BLOCKS = gql`
+query GetHomePageBlocks {
+  activeHomePageBlocks {
+    id
+    type
+    title
+    
+    content{
+      width
+      header
+      height
+      muted
+      autoplay
+      show_controls
+      show_prices
+      slides{
+        image
+        text1
+        text2
+        btn_link
+        btn_text
+      }
+      image
+      text
+      btn_link
+      btn_text
+      header
+      products{
+        product_id
+        display_order
+        product{
+          id
+          sku
+          are_shoes
+          list_price_amount
+          list_price_currency
+          video
+          video_url
+          video_thumbnail
+          video_thumbnail_url
+          categories
+          name
+          brand{
+            name
+          }
+          brand_name
+          brand_logo_url
+          productBadges{
+            label
+          }
+          images
+          
+        }
+      }
+    }
+    settings{
+      autoplay
+      show_arrows
+      show_dots
+    }
+    is_active
+    sort_order
+    section
+    display_limit
+    background_color
+    text_color
+    css_class
+    created_at
+    updated_at
+  }
+}
+`;
+
+
+export const UNREAD_NOTIFICATIONS_QUERY = gql`
+  query UnreadNotifications($user_id: ID!) {
+    unreadNotifications(user_id: $user_id) {
+      id
+      type
+      notifiable_type
+      notifiable_id
+      read_at
+      created_at
+      updated_at
+      notifiable {
+        id
+        name
+        email
+      }
     }
   }
 `;

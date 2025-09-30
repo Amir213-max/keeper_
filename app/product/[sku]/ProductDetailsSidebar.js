@@ -41,6 +41,7 @@ export default function ProductDetailsSidebar({ product }) {
       await addToCartTempUser(
         product.id,
         quantity,
+        
         product.list_price_amount || 0
       );
       alert(`${product.name} added to cart!`);
@@ -241,7 +242,7 @@ export default function ProductDetailsSidebar({ product }) {
         </button>
 
         <button
-          onClick={() => router.push("/checkout")}
+          onClick={() => router.push("/checkout_1")}
           className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition text-sm"
         >
           Checkout

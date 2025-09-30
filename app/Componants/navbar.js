@@ -13,6 +13,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import CartSidebar from './CartSidebar';
 import SearchComponent from './SearchComponant';
+import NavbarNotifications from './NotificationsBell';
 
 export default function NavbarWithLinks() {
   const { t, lang, setLang } = useTranslation();
@@ -22,43 +23,60 @@ export default function NavbarWithLinks() {
 
   return (
     <>
+      {/* شعار الخصومات */}
       <div className="flex mt-3 justify-center text-base sm:text-lg md:text-xl lg:text-2xl w-full font-extrabold text-red-600">
         {'>>'}{t("END OF SALES")}{'<<'}
       </div>
 
+      {/* Header Navbar */}
       <header className="w-full bg-black shadow py-4">
         <div className="navbar-container container mx-auto px-4 flex items-center justify-between">
-          {/* يسار */}
-
+          
+          {/* يسار: Sidebar + Cart */}
           <div className="navbar-left flex items-center gap-4 order-3 sm:order-1">
-
-          <button
-              className="menu-icon hidden text-white hover:text-red-600"
+            <button
+              className="menu-icon hidden sm:block text-white hover:text-red-600 transition-colors duration-200"
               onClick={() => setSidebarOpen(true)}
             >
               <FaBars size={22} />
             </button>
+
             <button
               onClick={() => setCartOpen(true)}
-              className="text-white hover:text-amber-400 duration-200 cursor-pointer"
+              className="text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             >
               <FaShoppingCart size={20} />
             </button>
-           
+
+            <Link href={'/whislist'}
+              className="text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            >
+              @
+            </Link>
           </div>
 
-          {/* وسط */}
-          <div className="navbar-center order-1 sm:order-2">
-            <Link href="/" className="text-white text-xl sm:text-2xl font-bold">LOGO</Link>
+          {/* وسط: Logo */}
+          <div className="navbar-center order-1 sm:order-2 flex items-center gap-4">
+            <Link href="/" className="text-white text-xl sm:text-2xl font-bold">
+              LOGO
+            </Link>
           </div>
 
-          {/* يمين */}
+          {/* يمين: User + Notifications + Search + Language */}
           <div className="navbar-right order-2 flex items-center gap-4">
-            <Link href={'/'} className="text-white hover:text-red-600">
+            {/* أيقونة المستخدم */}
+            <Link href={'/login'} className="text-white hover:text-red-600 transition-colors duration-200">
               <FaUser size={20} />
             </Link>
+
+            {/* أيقونة الإشعارات */}
+            <div className="hover:scale-110 transition-transform duration-200">
+              <NavbarNotifications userId={"1"} />
+            </div>
+
+            {/* أيقونة البحث */}
             <button
-              className="text-white hover:text-amber-400 duration-200 cursor-pointer"
+              className="text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
               onClick={() => setSearchOpen(!searchOpen)}
             >
               <FaSearch size={20} />
@@ -67,7 +85,8 @@ export default function NavbarWithLinks() {
             {searchOpen && (
               <SearchComponent onClose={() => setSearchOpen(false)} />
             )}
-          
+
+            {/* اختيار اللغة */}
             <select
               onChange={(e) => setLang(e.target.value)}
               value={lang}
@@ -92,29 +111,30 @@ export default function NavbarWithLinks() {
         </ul>
       </nav>
 
-     {/* Sidebar overlay */}
-<div
-  className={clsx(
-    "fixed top-0 right-0 h-full w-64 bg-neutral-900 shadow-lg z-[100] transition-transform duration-300", // ✅ bg-gray-800 بدل bg-white
-    sidebarOpen ? "translate-x-0" : "translate-x-full"
-  )}
->
-  <div className="flex justify-between items-center p-4 border-b border-gray-700">
-    <span className="text-xl font-bold text-white">{t("Menu")}</span> {/* ✅ النص أبيض */}
-    <button onClick={() => setSidebarOpen(false)}>
-      <FaTimes size={24} className="text-white" /> {/* ✅ زر الإغلاق أبيض */}
-    </button>
-  </div>
-  <ul className="flex flex-col gap-4 p-4 font-semibold text-white text-base"> {/* ✅ الروابط باللون الأبيض */}
-    <li><Link href="/GoalkeeperGloves" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Gloves')}</Link></li>
-    <li><Link href="/FootballBoots" onClick={() => setSidebarOpen(false)}>{t('Football Boots')}</Link></li>
-    <li><Link href="/Apparel" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Apparel')}</Link></li>
-    <li><Link href="/Equipmen" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Equipment')}</Link></li>
-    <li><Link href="/Teamsport" onClick={() => setSidebarOpen(false)}>{t('Teamsport')}</Link></li>
-    <li><Link href="/Sale" onClick={() => setSidebarOpen(false)}>{t('Sale')}</Link></li>
-  </ul>
-</div>
+      {/* Sidebar overlay */}
+      <div
+        className={clsx(
+          "fixed top-0 right-0 h-full w-64 bg-neutral-900 shadow-lg z-[100] transition-transform duration-300",
+          sidebarOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
+        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+          <span className="text-xl font-bold text-white">{t("Menu")}</span>
+          <button onClick={() => setSidebarOpen(false)}>
+            <FaTimes size={24} className="text-white" />
+          </button>
+        </div>
+        <ul className="flex flex-col gap-4 p-4 font-semibold text-white text-base">
+          <li><Link href="/GoalkeeperGloves" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Gloves')}</Link></li>
+          <li><Link href="/FootballBoots" onClick={() => setSidebarOpen(false)}>{t('Football Boots')}</Link></li>
+          <li><Link href="/Apparel" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Apparel')}</Link></li>
+          <li><Link href="/Equipmen" onClick={() => setSidebarOpen(false)}>{t('Goalkeeper Equipment')}</Link></li>
+          <li><Link href="/Teamsport" onClick={() => setSidebarOpen(false)}>{t('Teamsport')}</Link></li>
+          <li><Link href="/Sale" onClick={() => setSidebarOpen(false)}>{t('Sale')}</Link></li>
+        </ul>
+      </div>
 
+      {/* Cart Sidebar */}
       <CartSidebar isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
