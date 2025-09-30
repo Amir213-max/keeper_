@@ -26,23 +26,30 @@ const GET_SHIPPING_CALCULATION = gql`
 
 export default function CustomerPage() {
   const searchParams = useSearchParams();
-  const cartId = searchParams.get("cartId");
-  const countryId = searchParams.get("countryId");
-  const appliedCoupon = searchParams.get("appliedCoupon");
+  const cartId = searchParams.get("cartId") ?? "";
+  const countryId = searchParams.get("countryId") ?? "";
+  const appliedCoupon = searchParams.get("appliedCoupon") ?? "";
 
   const [shippingOptions, setShippingOptions] = useState(null);
   const [selectedShipping, setSelectedShipping] = useState(null);
   const [paymentType, setPaymentType] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Fetch shipping options
   useEffect(() => {
     if (!countryId) return;
     const fetchShipping = async () => {
-      const res = await graphqlClient.request(GET_SHIPPING_CALCULATION, {
-        country_id: countryId,
-      });
-      setShippingOptions(res.calculateShipping);
+      try {
+        setError("");
+        const res = await graphqlClient.request(GET_SHIPPING_CALCULATION, {
+          country_id: countryId,
+        });
+        setShippingOptions(res.calculateShipping);
+      } catch (err) {
+        console.error("Shipping error:", err);
+        setError("تعذر تحميل خيارات الشحن");
+      }
     };
     fetchShipping();
   }, [countryId]);
@@ -87,10 +94,18 @@ export default function CustomerPage() {
     <div className="min-h-screen bg-black text-yellow-400 p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-6">Customer Page</h1>
 
+      {/* Errors */}
+      {error && (
+        <div className="bg-red-600 text-white p-3 rounded-lg">{error}</div>
+      )}
+
       {/* Shipping Options */}
+      {!shippingOptions && !error && (
+        <p className="text-gray-400">جارِ تحميل خيارات الشحن...</p>
+      )}
       {shippingOptions && (
         <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
-          <h2 className="text-lg font-semibold mb-4">Shipping Options</h2>
+          <h2 className="text-lg font-semibold mb-4">خيارات الشحن</h2>
           {[shippingOptions.normal_shipping, shippingOptions.fast_shipping].map(
             (opt, i) => (
               <div
@@ -103,8 +118,8 @@ export default function CustomerPage() {
                 }`}
               >
                 <p className="font-bold">{opt.name}</p>
-                <p>Cost: {opt.cost} SAR</p>
-                <p className="text-sm">Est. {opt.estimated_days} days</p>
+                <p>السعر: {opt.cost} SAR</p>
+                <p className="text-sm">تقدير: {opt.estimated_days} يوم</p>
               </div>
             )
           )}
@@ -118,20 +133,20 @@ export default function CustomerPage() {
           <div className="flex gap-4">
             <button
               onClick={() => setPaymentType("COD")}
-              className={`px-4 py-2 rounded-lg border ${
+              className={`px-4 py-2 rounded-lg border transition ${
                 paymentType === "COD"
                   ? "bg-yellow-400 text-black"
-                  : "bg-black text-white border-yellow-400"
+                  : "bg-black text-white border-yellow-400 hover:bg-yellow-500 hover:text-black"
               }`}
             >
               الدفع عند الاستلام
             </button>
             <button
               onClick={() => setPaymentType("TAP")}
-              className={`px-4 py-2 rounded-lg border ${
+              className={`px-4 py-2 rounded-lg border transition ${
                 paymentType === "TAP"
                   ? "bg-yellow-400 text-black"
-                  : "bg-black text-white border-yellow-400"
+                  : "bg-black text-white border-yellow-400 hover:bg-yellow-500 hover:text-black"
               }`}
             >
               الدفع عبر Tap
@@ -145,7 +160,7 @@ export default function CustomerPage() {
         <button
           onClick={handlePlaceOrder}
           disabled={loading}
-          className="w-full bg-yellow-400 text-black py-3 font-bold rounded-xl"
+          className="w-full bg-yellow-400 text-black py-3 font-bold rounded-xl disabled:opacity-50"
         >
           {loading ? "Processing..." : "Place Order"}
         </button>
