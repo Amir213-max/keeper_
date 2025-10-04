@@ -160,15 +160,42 @@ query ProductsByCategory($categoryId: ID!) {
 
 
 export const GET_CATEGORIES_QUERY = gql`
-  query GetCategories {
-    rootCategories {
+query GetCategories {
+  rootCategories {
+    id
+    name
+  }
+  products {
+    list_price_amount
+    list_price_currency
+    relative_list_price_difference
+    price_range_from
+    price_range_to
+    price_range_currency
+    price_range_exact_amount
+    price_range_maximum_amount
+    price_range_minimum_amount
+    id
+    description
+    sku
+    name
+    are_shoes
+    list_price_amount
+    brand {
       id
       name
-      subCategories {
+    }
+    productAttributeValues {
+      id
+      key
+      attribute {
         id
-        name
+        label
       }
     }
+    images
+   
+  }
   }
 `;
 
@@ -296,7 +323,47 @@ export const PRODUCT_QUERY = gql`
     }
   }
 `;
+export const PRODUCTS_BY_IDS_QUERY = gql`
+query getproduct ($id: String!) {
+  product(id: $id) {
+    id
+    name
+    sku
+    description_ar
+    description_en
+    
+    images
+    variants {
+      id
+      name
+      price
+    }
+    productAttributeValues {
+      id
+      key
+      attribute {
+        id
+        label
+      }
+    }
+    brand {
+      id
+      name
+    }
 
+
+    list_price_amount
+    list_price_currency
+    relative_list_price_difference
+    price_range_from
+    price_range_to
+    price_range_currency
+    price_range_exact_amount
+    price_range_maximum_amount
+    price_range_minimum_amount
+  }
+}
+`;
 
 export const GET_PRODUCT_BY_SKU = gql`
   query GetProductBySku($sku: String!) {
@@ -501,65 +568,11 @@ query GetOrders {
 
 
 export const GET_ACTIVE_HOME_PAGE_BLOCKS = gql`
-query GetHomePageBlocks {
-  activeHomePageBlocks {
+query {
+  activeHomepageBlocks {
     id
     type
     title
-    
-    content{
-      width
-      header
-      height
-      muted
-      autoplay
-      show_controls
-      show_prices
-      slides{
-        image
-        text1
-        text2
-        btn_link
-        btn_text
-      }
-      image
-      text
-      btn_link
-      btn_text
-      header
-      products{
-        product_id
-        display_order
-        product{
-          id
-          sku
-          are_shoes
-          list_price_amount
-          list_price_currency
-          video
-          video_url
-          video_thumbnail
-          video_thumbnail_url
-          categories
-          name
-          brand{
-            name
-          }
-          brand_name
-          brand_logo_url
-          productBadges{
-            label
-          }
-          images
-          
-        }
-      }
-    }
-    settings{
-      autoplay
-      show_arrows
-      show_dots
-    }
     is_active
     sort_order
     section
@@ -569,8 +582,62 @@ query GetHomePageBlocks {
     css_class
     created_at
     updated_at
+    display_name
+    css_classes
+    inline_styles
+    content {
+      slides {
+        image
+        title
+        description
+        button_text
+        button_link
+      }
+      autoplay
+      show_dots
+      show_arrows
+      interval
+      product_ids{
+       product_id
+        
+      }
+    
+      
+      per_row
+      show_price
+      show_add_to_cart
+      banners {
+        image
+        title
+        link
+        description
+      }
+      height
+      images {
+        image
+        title
+        description
+        link
+      }
+      show_titles
+      show_descriptions
+      brand_ids
+      show_names
+      content
+      alignment
+      font_size
+      max_width
+    }
+    settings {
+      custom_settings
+    }
+    typed_content {
+      data
+    }
   }
 }
+
+
 `;
 
 
@@ -592,3 +659,83 @@ export const UNREAD_NOTIFICATIONS_QUERY = gql`
     }
   }
 `;
+
+
+
+
+
+
+
+
+
+
+// query GetHomePageBlocks {
+//   activeHomePageBlocks {
+//     id
+//     type
+//     title
+    
+    // content{
+    //   width
+    //   header
+    //   height
+    //   muted
+    //   autoplay
+    //   show_controls
+    //   show_prices
+    //   slides{
+    //     image
+    //     text1
+    //     text2
+    //     btn_link
+    //     btn_text
+    //   }
+    //   image
+    //   text
+    //   btn_link
+    //   btn_text
+    //   header
+    //   products{
+    //     product_id
+    //     display_order
+    //     product{
+    //       id
+    //       sku
+    //       are_shoes
+    //       list_price_amount
+    //       list_price_currency
+    //       video
+    //       video_url
+    //       video_thumbnail
+    //       video_thumbnail_url
+    //       categories
+    //       name
+    //       brand{
+    //         name
+    //       }
+    //       brand_name
+    //       brand_logo_url
+    //       productBadges{
+    //         label
+    //       }
+    //       images
+          
+    //     }
+    //   }
+    // }
+//     settings{
+//       autoplay
+//       show_arrows
+//       show_dots
+//     }
+//     is_active
+//     sort_order
+//     section
+//     display_limit
+//     background_color
+//     text_color
+//     css_class
+//     created_at
+//     updated_at
+//   }
+// }

@@ -2,7 +2,7 @@
 
 import { Heart } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import BrandsSlider from "../Componants/brandsSplide_1";
 import FilterDropdown from "../Componants/CheckboxDropdown ";
 import ProductSlider from "../Componants/ProductSlider";
@@ -20,7 +20,8 @@ export default function FootballClientPage({ products, brands, attributeValues }
   const [categories, setCategories] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // بدل الاسم
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
 
   const [wishlistIds, setWishlistIds] = useState([]);
@@ -102,10 +103,8 @@ export default function FootballClientPage({ products, brands, attributeValues }
   // Filter products based on brand, attributes, and category ID
   useEffect(() => {
     const result = products.filter((product) => {
-      // Brand match
       const brandMatch = !selectedBrand || product.brand?.name === selectedBrand;
 
-      // Attributes match
       const attrs = product.productAttributeValues || [];
       const attributesMatch = Object.entries(selectedAttributes).every(
         ([attrLabel, selectedVals]) => {
@@ -120,7 +119,6 @@ export default function FootballClientPage({ products, brands, attributeValues }
         }
       );
 
-      // Category match by ID
       const categoryMatch =
         !selectedCategoryId ||
         (product.rootCategories || []).some((cat) => cat.id === selectedCategoryId);
@@ -131,6 +129,15 @@ export default function FootballClientPage({ products, brands, attributeValues }
     setFilteredProducts(result);
     setCurrentPage(1);
   }, [products, selectedBrand, selectedAttributes, selectedCategoryId]);
+
+  // Filter categories that have products
+  const categoriesWithProducts = useMemo(() => {
+    return categories.filter((cat) =>
+      products.some((product) =>
+        (product.rootCategories || []).some((pCat) => pCat.id === cat.id)
+      )
+    );
+  }, [categories, products]);
 
   // Pagination
   const indexOfLast = currentPage * productsPerPage;
@@ -144,17 +151,24 @@ export default function FootballClientPage({ products, brands, attributeValues }
         {/* Sidebar */}
         <div className="md:col-span-1 bg-[#1f2323] md:h-auto md:overflow-visible h-[50vh] overflow-y-auto">
           <Sidebar
-            categories={categories}
-            onSelectCategory={(catId) =>
-              setSelectedCategoryId(catId === selectedCategoryId ? null : catId)
-            }
+            categories={categoriesWithProducts}
+            onSelectCategory={(catId) => {
+              if (catId === selectedCategoryId) {
+                setSelectedCategoryId(null);
+                setSelectedCategoryName(null);
+              } else {
+                setSelectedCategoryId(catId);
+                const cat = categoriesWithProducts.find((c) => c.id === catId);
+                setSelectedCategoryName(cat?.name || null);
+              }
+            }}
           />
         </div>
 
         {/* Products Area */}
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className="text-4xl text-[#1f2323] p-2">
-            {selectedCategoryId ? `Category ${selectedCategoryId}` : t("Football Shoes")}
+            {selectedCategoryName ? selectedCategoryName : t("Football Shoes")}
           </h1>
 
           <BrandsSlider
@@ -255,7 +269,6 @@ export default function FootballClientPage({ products, brands, attributeValues }
               ))}
 
               <button
-                // onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="px-3 sm:px-4 py-2 cursor-pointer rounded-lg bg-gray-200 text-gray-700 disabled:opacity-50 text-sm sm:text-base"
               >

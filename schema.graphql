@@ -35,61 +35,134 @@ type HomePageBlock {
     is_active: Boolean!
     sort_order: Int!
     section: String!
-    display_limit: Int
     background_color: String
     text_color: String
     css_class: String
+    display_limit: Int
     created_at: String!
     updated_at: String!
+    
+    # Computed attributes
+    display_name: String!
+    css_classes: String!
+    inline_styles: String!
+    typed_content: HomePageBlockTypedContent! @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveTypedContent")
+    
+    # Product relationships (for products type blocks)
+    selected_products: [Product!]! @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveSelectedProducts")
+    selected_product_ids: [ID!]! @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveSelectedProductIds")
 }
 
 type HomePageBlockContent {
     # Slider content
     slides: [SliderSlide!]
-    
-    # Banner content
-    image: String
-    text: String
-    btn_text: String
-    btn_link: String
+    autoplay: Boolean
+    show_dots: Boolean
+    show_arrows: Boolean
+    interval: Int
     
     # Products content
-    header: String
-    products: [ProductSelection!]
+    product_ids: [ProductIdInput!]
     per_row: Int
-    max_products: Int
-    show_prices: Boolean
+    show_price: Boolean
+    show_add_to_cart: Boolean
     
-    # Video content
-    video_url: String
-    autoplay: Boolean
-    show_controls: Boolean
-    muted: Boolean
-    width: String
+    # Banners content
+    banners: [Banner!]
     height: String
+    
+    # Images content
+    images: [ImageBlock!]
+    show_titles: Boolean
+    show_descriptions: Boolean
+    
+    # Brands content
+    brand_ids: [Int!]
+    show_names: Boolean
+    
+    # Text content
+    content: String
+    alignment: String
+    font_size: String
+    max_width: String
 }
 
 type HomePageBlockSettings {
-    # Slider settings
-    autoplay: Int
-    show_dots: Boolean
-    show_arrows: Boolean
+    # Additional settings can be added here
+    custom_settings: String
+}
+
+type HomePageBlockTypedContent {
+    # This will contain the processed content based on block type
+    data: String
 }
 
 type SliderSlide {
     image: String!
-    text1: String!
-    text2: String
-    btn_text: String
-    btn_link: String
+    title: String
+    description: String
+    button_text: String
+    button_link: String
 }
 
-type ProductSelection {
-    product_id: ID!
-    display_order: Int!
-    product: Product @field(resolver: "App\\GraphQL\\Resolvers\\HomePageBlockResolver@resolveProduct")
+type Banner {
+    image: String!
+    title: String
+    link: String
+    description: String
 }
- 
+
+type ImageBlock {
+    image: String!
+    title: String!
+    description: String
+    link: String
+}
+
+type ProductIdInput {
+    product_id: ID!
+}
+
+type HomePageBlocksPaginatedResult {
+    data: [HomePageBlock!]!
+    paginatorInfo: PaginatorInfo!
+}
+
+input HomePageBlockInput {
+    type: String!
+    title: String
+    content: String
+    settings: String
+    is_active: Boolean
+    sort_order: Int
+    section: String
+    background_color: String
+    text_color: String
+    css_class: String
+    display_limit: Int
+}
+
+input UpdateHomePageBlockInput {
+    type: String
+    title: String
+    content: String
+    settings: String
+    is_active: Boolean
+    sort_order: Int
+    section: String
+    background_color: String
+    text_color: String
+    css_class: String
+    display_limit: Int
+}
+
+input HomePageBlocksFiltersInput {
+    type: String
+    section: String
+    is_active: Boolean
+    search: String
+}
+
  type Wishlist {
      id: ID!
      user_id: ID!
@@ -171,41 +244,19 @@ input MoveToCartInput {
     remove_from_wishlist: Boolean
 }
 
-input HomePageBlockInput {
-    type: String!
-    title: String
-    content: String
-    settings: String
-    is_active: Boolean
-    sort_order: Int
-    section: String
-    display_limit: Int
-    background_color: String
-    text_color: String
-    css_class: String
-}
-
-input UpdateHomePageBlockInput {
-    type: String
-    title: String
-    content: String
-    settings: String
-    is_active: Boolean
-    sort_order: Int
-    section: String
-    display_limit: Int
-    background_color: String
-    text_color: String
-    css_class: String
-}
-
-input ReorderHomePageBlocksInput {
-    blocks: [ReorderBlockInput!]!
-}
-
 input ReorderBlockInput {
     id: ID!
     sort_order: Int!
+}
+
+type TypeCount {
+    type: String!
+    count: Int!
+}
+
+type SectionCount {
+    section: String!
+    count: Int!
 }
 
 input MarkNotificationAsReadInput {
@@ -1145,12 +1196,11 @@ type Query {
      productsWithCategoryValidation(limit: Int, offset: Int): ProductValidationResult! @field(resolver: "App\\GraphQL\\Queries\\ProductsWithCategoryValidationQuery")
      productsWithCategoryPerformance(limit: Int, offset: Int): ProductPerformanceResult! @field(resolver: "App\\GraphQL\\Queries\\ProductsWithCategoryPerformanceQuery")
      productsWithCategoryInsights(limit: Int, offset: Int): ProductInsightsResult! @field(resolver: "App\\GraphQL\\Queries\\ProductsWithCategoryInsightsQuery")
-     product(id: ID! @eq): Product @find(model: "App\\Models\\Product")
+     product(id: String! @eq): Product @find(model: "App\\Models\\Product")
      productWithCategories(id: ID! @eq): Product @field(resolver: "App\\GraphQL\\Queries\\ProductWithCategoriesQuery")
      productBySku(sku: String! @eq): Product @find(model: "App\\Models\\Product")
      productBySkuWithCategories(sku: String! @eq): Product @field(resolver: "App\\GraphQL\\Queries\\ProductBySkuWithCategoriesQuery")
-     
- 
+
      brands: [Brand!]! @all(model: "App\\Models\\Brand")
     brand(id: ID! @eq): Brand @find(model: "App\\Models\\Brand")
 
@@ -1201,27 +1251,19 @@ type Query {
     publicSettings: [Setting!]! @field(resolver: "App\\GraphQL\\Queries\\PublicSettingsQuery")
     settingsByGroup(group: String! @eq): [Setting!]! @field(resolver: "App\\GraphQL\\Queries\\SettingsByGroupQuery")
     
-    # Homepage blocks queries
-    homePageBlocks: [HomePageBlock!]! @all(model: "App\\Models\\HomePageBlock")
-    homePageBlock(id: ID! @eq): HomePageBlock @find(model: "App\\Models\\HomePageBlock")
-    activeHomePageBlocks(section: String): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\ActiveHomePageBlocksQuery")
-    homePageBlocksByType(type: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksByTypeQuery")
-    homePageBlocksBySection(section: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksBySectionQuery")
-    homePageBlocksByTypeAndSection(type: String!, section: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomePageBlocksByTypeAndSectionQuery")
-    sliderBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\SliderBlocksQuery")
-    bannerBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\BannerBlocksQuery")
-    productBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\ProductBlocksQuery")
-    videoBlocks: [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\VideoBlocksQuery")
-    
-    # Notifications queries
-    notifications(filters: NotificationFiltersInput): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\NotificationsQuery")
-    notification(id: ID! @eq): Notification @find(model: "App\\Models\\Notification")
     userNotifications(user_id: ID!, filters: NotificationFiltersInput): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\UserNotificationsQuery")
     unreadNotifications(user_id: ID!): [Notification!]! @field(resolver: "App\\GraphQL\\Queries\\UnreadNotificationsQuery")
     notificationStats(user_id: ID!): NotificationStats! @field(resolver: "App\\GraphQL\\Queries\\NotificationStatsQuery")
+    
+    # Homepage Blocks queries
+    homepageBlocks: [HomePageBlock!]! @all(model: "App\\Models\\HomePageBlock")
+    homepageBlock(id: ID! @eq): HomePageBlock @find(model: "App\\Models\\HomePageBlock")
+    activeHomepageBlocks(section: String): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\ActiveHomepageBlocksQuery")
+    homepageBlocksByType(type: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomepageBlocksByTypeQuery")
+    homepageBlocksBySection(section: String!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Queries\\HomepageBlocksBySectionQuery")
+    homepageBlocksPaginated(page: Int, per_page: Int, filters: HomePageBlocksFiltersInput): HomePageBlocksPaginatedResult! @field(resolver: "App\\GraphQL\\Queries\\HomepageBlocksPaginatedQuery")
  }
 
- 
  type Mutation {
      # Authentication mutations
      signup(input: SignupInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\SignupMutation")
@@ -1293,12 +1335,12 @@ type Query {
     exportProducts(filters: ProductFiltersInput, format: String): ProductExportResponse! @field(resolver: "App\\GraphQL\\Mutations\\ExportProductsMutation")
     importProducts(file: String!, update_existing: Boolean): ProductImportResponse! @field(resolver: "App\\GraphQL\\Mutations\\ImportProductsMutation")
     
-    # Homepage blocks mutations
-    createHomePageBlock(input: HomePageBlockInput! @spread): HomePageBlock @create(model: "App\\Models\\HomePageBlock")
-    updateHomePageBlock(id: ID!, input: UpdateHomePageBlockInput! @spread): HomePageBlock @update(model: "App\\Models\\HomePageBlock")
-    deleteHomePageBlock(id: ID!): HomePageBlock @delete(model: "App\\Models\\HomePageBlock")
-    reorderHomePageBlocks(input: ReorderHomePageBlocksInput! @spread): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Mutations\\ReorderHomePageBlocksMutation")
-    toggleHomePageBlockStatus(id: ID!): HomePageBlock @field(resolver: "App\\GraphQL\\Mutations\\ToggleHomePageBlockStatusMutation")
+    # Homepage Blocks mutations
+    createHomepageBlock(input: HomePageBlockInput! @spread): HomePageBlock @create(model: "App\\Models\\HomePageBlock")
+    updateHomepageBlock(id: ID!, input: UpdateHomePageBlockInput! @spread): HomePageBlock @update(model: "App\\Models\\HomePageBlock")
+    deleteHomepageBlock(id: ID!): HomePageBlock @delete(model: "App\\Models\\HomePageBlock")
+    reorderHomepageBlocks(ids: [ID!]!): [HomePageBlock!]! @field(resolver: "App\\GraphQL\\Mutations\\ReorderHomepageBlocksMutation")
+    toggleHomepageBlockStatus(id: ID!): HomePageBlock @field(resolver: "App\\GraphQL\\Mutations\\ToggleHomepageBlockStatusMutation")
     
     # Notifications mutations
     createNotification(input: CreateNotificationInput! @spread): Notification @create(model: "App\\Models\\Notification")
