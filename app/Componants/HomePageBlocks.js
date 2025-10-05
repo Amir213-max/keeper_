@@ -101,21 +101,12 @@ export default function HomePageBlocks() {
       >
         <Image
           src={getImageUrl(banner.image)}
-          alt={banner.title || ""}
+          alt={""}
           fill
           className="object-fill w-full h-full"
           unoptimized
         />
-        {banner.title && (
-          <h3 className="absolute bottom-16 left-4 text-white font-bold text-base sm:text-lg md:text-xl lg:text-2xl drop-shadow-lg">
-            {banner.title}
-          </h3>
-        )}
-        {banner.description && (
-          <p className="absolute bottom-4 left-4 text-white text-xs sm:text-sm md:text-base drop-shadow-md">
-            {banner.description}
-          </p>
-        )}
+        
       </div>
     ))}
   </div>
@@ -197,9 +188,7 @@ export default function HomePageBlocks() {
             )}
           </div>
 
-          <p className="text-sm text-gray-500 mt-2 text-center pb-4">
-            Section: <span className="font-medium">{block.section}</span>
-          </p>
+         
         </div>
       ))}
     </div>
