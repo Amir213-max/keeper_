@@ -89,9 +89,24 @@ export default function SomeClientPage({ products, brands, attributeValues }) {
 
   return (
     <div className="bg-[#373e3e]">
-      <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
-        {/* Sidebar */}
-        <div className="md:col-span-1 bg-[#1f2323] md:h-auto md:overflow-visible h-[50vh] overflow-y-auto">
+      {/* ✅ Sidebar فوق المنتجات للشاشات الصغيرة والمتوسطة */}
+      <div className="block lg:hidden bg-black px-2 py-2 sticky top-0 z-20">
+        <Sidebar
+          categories={categoriesWithProducts}
+          onSelectCategory={(catId) => {
+            if (catId === selectedCategoryId) {
+              setSelectedCategoryId(null);
+              setSelectedCategoryName(null);
+            } else {
+              setSelectedCategoryId(catId);
+            }
+          }}
+        />
+      </div>
+
+      <div className="grid pt-1 grid-cols-1 lg:grid-cols-5">
+        {/* ✅ Sidebar في الجنب للشاشات الكبيرة */}
+        <div className="hidden lg:block lg:col-span-1 bg-black h-auto">
           <Sidebar
             categories={categoriesWithProducts}
             onSelectCategory={(catId) => {
@@ -106,7 +121,7 @@ export default function SomeClientPage({ products, brands, attributeValues }) {
         </div>
 
         {/* Products Area */}
-        <div className="md:col-span-4 p-4 bg-white">
+        <div className="lg:col-span-4 p-4 bg-white">
           <h1 className="text-4xl text-[#1f2323] p-2">
             {selectedCategoryName || t("All Products")}
           </h1>

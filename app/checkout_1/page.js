@@ -5,7 +5,6 @@ import { gql } from "graphql-request";
 import { graphqlClient } from "../lib/graphqlClient";
 import { fetchUserCart } from "../lib/mutations";
 
-// ✅ Queries
 const GET_COUNTRIES = gql`
   query {
     countries {
@@ -28,7 +27,6 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
 
-  // Fetch cart
   useEffect(() => {
     const loadCart = async () => {
       const userCart = await fetchUserCart();
@@ -37,7 +35,6 @@ export default function CheckoutPage() {
     loadCart();
   }, []);
 
-  // Fetch countries
   useEffect(() => {
     const loadCountries = async () => {
       const res = await graphqlClient.request(GET_COUNTRIES);
@@ -46,18 +43,16 @@ export default function CheckoutPage() {
     loadCountries();
   }, []);
 
-  // Apply coupon
   const applyCoupon = () => {
     if (!couponCode) {
       alert("من فضلك أدخل كود الخصم");
       return;
     }
     setAppliedCoupon(couponCode);
-    setDiscountAmount(50); // مثال ثابت للخصم
+    setDiscountAmount(50);
     alert(`تم تطبيق الكوبون: ${couponCode}`);
   };
 
-  // Cart subtotal
   const cartSubtotal = cart
     ? cart.lineItems.reduce(
         (sum, i) => sum + i.product.price_range_exact_amount * i.quantity,
@@ -67,7 +62,6 @@ export default function CheckoutPage() {
 
   const totalAfterDiscount = cartSubtotal - discountAmount;
 
-  // Continue → Go to Customer Page
   const handleContinue = () => {
     if (!selectedCountry) {
       alert("من فضلك اختر الدولة");
@@ -84,31 +78,33 @@ export default function CheckoutPage() {
   if (!cart) return <p className="text-white text-center mt-10">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-black text-yellow-400 py-10 px-6">
-      <h1 className="text-3xl font-bold text-center mb-10">Checkout</h1>
+    <div className="min-h-screen bg-neutral-950 text-white py-10 px-6">
+      <h1 className="text-3xl font-extrabold text-center mb-10 text-yellow-400">
+        Checkout
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {/* Cart Summary */}
-        <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg lg:col-span-2">
-          <h2 className="text-xl font-bold mb-4">Your Cart</h2>
+        <div className="bg-neutral-900 p-6 rounded-2xl shadow-lg lg:col-span-2 border border-neutral-800">
+          <h2 className="text-xl font-bold mb-6 text-yellow-400">Your Cart</h2>
           {cart.lineItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between bg-white text-black p-4 rounded-xl mb-4"
+              className="flex items-center justify-between bg-neutral-800 text-white p-4 rounded-xl mb-4 border border-neutral-700"
             >
               <div className="flex items-center gap-4">
                 <img
                   src={item.product.images?.[0] || "/no-image.png"}
                   alt={item.product.name}
-                  className="w-20 h-20 rounded-lg object-cover border"
+                  className="w-20 h-20 rounded-lg object-cover border border-neutral-600"
                 />
                 <div>
                   <p className="font-bold">{item.product.name}</p>
-                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                  <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
                 </div>
               </div>
-              <p className="font-bold">
-                {item.product.price_range_exact_amount * item.quantity} SAR
+              <p className="font-bold text-yellow-400">
+              {(item.product.price_range_exact_amount * item.quantity).toFixed(2)} SAR
               </p>
             </div>
           ))}
@@ -120,11 +116,11 @@ export default function CheckoutPage() {
               placeholder="ادخل كود الخصم"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
-              className="flex-1 p-3 rounded-lg bg-black text-yellow-400 border border-yellow-500"
+              className="flex-1 p-3 rounded-lg bg-neutral-800 text-white border border-neutral-600 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
             />
             <button
               onClick={applyCoupon}
-              className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-bold"
+              className="bg-yellow-400 text-black px-5 py-2 rounded-lg font-bold hover:bg-yellow-300 transition"
             >
               تطبيق
             </button>
@@ -134,29 +130,31 @@ export default function CheckoutPage() {
           <div className="mt-6 space-y-2 text-lg">
             <div className="flex justify-between">
               <span>المجموع:</span>
-              <span>{cartSubtotal} SAR</span>
+              <span>{cartSubtotal.toFixed(2)}  SAR</span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-green-400">
                 <span>الخصم:</span>
-                <span>- {discountAmount} SAR</span>
+                <span>- {discountAmount.toFixed(2)} SAR</span>
               </div>
             )}
-            <div className="flex justify-between font-bold border-t border-yellow-500 pt-2">
+            <div className="flex justify-between font-bold border-t border-neutral-700 pt-2 text-yellow-400">
               <span>الإجمالي:</span>
-              <span>{totalAfterDiscount} SAR</span>
+              <span>{totalAfterDiscount.toFixed(2)} SAR</span>
             </div>
           </div>
         </div>
 
         {/* Country Selection */}
         <div className="space-y-6">
-          <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Choose Country</h2>
+          <div className="bg-neutral-900 p-6 rounded-2xl shadow-lg border border-neutral-800">
+            <h2 className="text-lg font-semibold mb-3 text-yellow-400">
+              Choose Country
+            </h2>
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
-              className="w-full p-3 rounded-lg bg-black text-yellow-400 border border-yellow-500"
+              className="w-full p-3 rounded-lg bg-neutral-800 text-white border border-neutral-600 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
             >
               <option value="">-- اختر الدولة --</option>
               {countries.map((c) => (
@@ -169,7 +167,7 @@ export default function CheckoutPage() {
 
           <button
             onClick={handleContinue}
-            className="w-full bg-yellow-400 text-black py-3 font-bold rounded-xl"
+            className="w-full bg-yellow-400 text-black py-3 font-bold rounded-xl hover:bg-yellow-300 transition"
           >
             Continue
           </button>

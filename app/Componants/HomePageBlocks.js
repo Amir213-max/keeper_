@@ -71,47 +71,53 @@ export default function HomePageBlocks() {
           }}
         >
           {block.title && (
-            <h2 className="text-3xl md:text-4xl text-center font-bold mb-6 pt-6">
+            <h2 className="text-2xl sm:text-3xl md:tex t-4xl text-center font-bold mb-6 pt-6">
               {block.title}
             </h2>
           )}
 
           <div className="px-2 p-1.5 md:px-1 pb-2 space-y-6">
-            {/* Banners full width */}
-    {/* Banners full width / multiple */}
+       {/* Banners */}
 {block.type === "banners" && block.content?.banners?.length > 0 && (
-  <div className="w-screen flex gap-4">
-    {block.content.banners.map((banner, idx) => {
-      const isSingle = block.content.banners.length === 1; // بانر واحد
-      return (
-        <div
-          key={idx}
-          className="relative overflow-hidden shadow-md rounded-lg"
-          style={{
-            height: '400px',
-            width: isSingle ? '100vw' : `${100 / block.content.banners.length}vw`
-          }}
-        >
-          <Image
-            src={getImageUrl(banner.image)}
-            alt={banner.title || ""}
-            fill
-            className="object-contian w-full h-full"
-            unoptimized
-          />
-          {banner.title && (
-            <h3 className="absolute bottom-16 left-4 text-white font-bold text-lg md:text-xl lg:text-2xl">
-              {banner.title}
-            </h3>
-          )}
-          {banner.description && (
-            <p className="absolute bottom-4 left-4 text-white text-sm md:text-base">
-              {banner.description}
-            </p>
-          )}
-        </div>
-      );
-    })}
+  <div
+    className={`grid gap-4 lg:px-0  md:px-0${
+      block.content.banners.length === 1
+        ? "grid-cols-1"
+        : block.content.banners.length === 2
+        ? "grid-cols-1 md:grid-cols-2"
+        : "grid-cols-2 lg:grid-cols-3"
+    }`}
+  >
+    {block.content.banners.map((banner, idx) => (
+      <div
+        key={idx}
+        className={`relative overflow-hidden shadow-md rounded-lg w-full ${
+          block.content.banners.length === 1
+            ? "h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]"
+            : block.content.banners.length === 2
+            ? "h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px]"
+            : "h-[220px] sm:h-[280px] md:h-[350px]"
+        }`}
+      >
+        <Image
+          src={getImageUrl(banner.image)}
+          alt={banner.title || ""}
+          fill
+          className="object-fill w-full h-full"
+          unoptimized
+        />
+        {banner.title && (
+          <h3 className="absolute bottom-16 left-4 text-white font-bold text-base sm:text-lg md:text-xl lg:text-2xl drop-shadow-lg">
+            {banner.title}
+          </h3>
+        )}
+        {banner.description && (
+          <p className="absolute bottom-4 left-4 text-white text-xs sm:text-sm md:text-base drop-shadow-md">
+            {banner.description}
+          </p>
+        )}
+      </div>
+    ))}
   </div>
 )}
 
@@ -119,7 +125,7 @@ export default function HomePageBlocks() {
             {/* Products */}
             {block.type === "products" && productsMap[block.id]?.length > 0 && (
               <Splide
-                key={lang} // إعادة render عند تغيير اللغة
+                key={lang}
                 options={{
                   type: "loop",
                   perPage: block.content?.per_row || 4,
@@ -140,38 +146,47 @@ export default function HomePageBlocks() {
                   <SplideSlide key={product.id}>
                     <Link
                       href={`/product/${product.sku}`}
-                      className="block bg-neutral-900 hover:bg-neutral-800 rounded-lg shadow-md overflow-hidden flex flex-col h-96 transition"
+                      className="block bg-neutral-900 hover:bg-neutral-600 rounded-lg shadow-md overflow-hidden flex flex-col transition h-full"
                     >
-                      <div className="relative w-full h-48 flex items-center justify-center">
+                      <div className="relative w-full aspect-[3/4] bg-neutral-800  flex items-center justify-center">
                         {product.images?.[0] ? (
                           <Image
                             src={typeof product.images[0] === "string" ? product.images[0] : product.images[0]?.url}
                             alt={product.name}
                             fill
-                            className="object-contain pt-6"
+                            className="object-contain p-4"
                             onError={(e) => { e.currentTarget.src = "/fallback.png"; }}
                             unoptimized
                           />
                         ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                          <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-gray-400">
                             No Image
                           </div>
                         )}
                       </div>
 
-                      <div className="p-5 flex flex-col justify-between flex-1">
-                        <h3 className="text-lg text-center text-white font-semibold mb-2 line-clamp-2">{product.name}</h3>
+                      <div className="p-4 flex flex-col justify-between flex-1">
+                        <h3 className="text-sm sm:text-base lg:text-lg text-center text-white font-semibold mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
 
                         <div className="mt-auto text-center">
                           {product.price_range_from ? (
                             <div className="flex flex-col items-center">
-                              <span className="text-gray-400 line-through text-sm">{product.list_price_currency}{product.list_price_amount}</span>
-                              <span className="text-yellow-500 font-bold text-xl">
-                                {product.list_price_currency}{product.price_range_from}{product.price_range_to && product.price_range_to !== product.price_range_from ? ` - ${product.list_price_currency}${product.price_range_to}` : ""}
+                              <span className="text-gray-400 line-through text-xs sm:text-sm">
+                                {product.list_price_currency}{product.list_price_amount}
+                              </span>
+                              <span className="text-yellow-500 font-bold text-lg sm:text-xl">
+                                {product.list_price_currency}{product.price_range_from}
+                                {product.price_range_to && product.price_range_to !== product.price_range_from
+                                  ? ` - ${product.list_price_currency}${product.price_range_to}`
+                                  : ""}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-yellow-500 font-bold text-xl">{product.list_price_currency}{product.list_price_amount}</span>
+                            <span className="text-yellow-500 font-bold text-lg sm:text-xl">
+                              {product.list_price_currency}{product.list_price_amount}
+                            </span>
                           )}
                         </div>
                       </div>

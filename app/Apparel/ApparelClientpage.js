@@ -1,97 +1,28 @@
 "use client";
 
-import { Heart } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import BrandsSlider from "../Componants/brandsSplide_1";
 import FilterDropdown from "../Componants/CheckboxDropdown ";
 import ProductSlider from "../Componants/ProductSlider";
 import Sidebar from "../Componants/sidebar";
 import { useTranslation } from "../contexts/TranslationContext";
 import { graphqlClient } from "../lib/graphqlClient";
-import { GET_CATEGORIES_QUERY, GET_WISHLIST_ITEMS } from "../lib/queries";
-import toast from "react-hot-toast";
-import { useAuth } from "../contexts/AuthContext";
-import { ADD_TO_WISHLIST } from "../lib/mutations";
+import { GET_CATEGORIES_QUERY } from "../lib/queries";
 
 export default function ApparelClientPage({ products, brands, attributeValues }) {
-  const { user } = useAuth(); // 🟢 ييجي من الكونتكست
-
   const [categories, setCategories] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
 
-  // 🟢 wishlist
-  const [wishlistIds, setWishlistIds] = useState([]);
-  const wishlistId = user?.defaultWishlist?.id || user?.wishlists?.[0]?.id; 
-
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 20;
-
   const { t } = useTranslation();
 
-  // 🟢 Fetch Wishlist Items
-  useEffect(() => {
-    if (wishlistId) {
-      const fetchWishlist = async () => {
-        try {
-          const res = await graphqlClient.request(GET_WISHLIST_ITEMS, {
-            wishlistId,
-          });
-          const ids =
-            res?.wishlist?.items?.map((item) => String(item.product.id)) || [];
-          setWishlistIds(ids);
-        } catch (error) {
-          console.error("Error fetching wishlist items:", error);
-        }
-      };
-      fetchWishlist();
-    }
-  }, [wishlistId]);
-
-  // 🟢 Handle Add to Wishlist
-  async function handleAddToWishlist(productId) {
-    if (!user) {
-      toast.error("❌ You must be logged in to add to wishlist");
-      return;
-    }
-
-    if (!wishlistId) {
-      toast.error("❌ Your wishlist ID is missing. Please reload or contact support.");
-      return;
-    }
-
-    if (wishlistIds.includes(String(productId))) {
-      toast("⚠️ This product is already in your wishlist");
-      return;
-    }
-
-    try {
-      const variables = {
-        input: {
-          wishlist_id: wishlistId, // 🟢 نستخدم الـ wishlistId الصح
-          product_id: productId,
-        },
-      };
-
-      const response = await graphqlClient.request(ADD_TO_WISHLIST, variables);
-
-      if (response?.addToWishlist?.success) {
-        toast.success("✅ Product added to wishlist!");
-        setWishlistIds((prev) => [...prev, String(productId)]);
-      } else {
-        toast.error(response?.addToWishlist?.message || "❌ Failed to add to wishlist");
-      }
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      toast.error("❌ Something went wrong!");
-    }
-  }
-
-  // 🟢 Fetch categories
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -104,10 +35,11 @@ export default function ApparelClientPage({ products, brands, attributeValues })
     fetchCategories();
   }, []);
 
-  // 🟢 Filter products
+  // Filter products based on category, brand, and attributes
   useEffect(() => {
     const result = products.filter((product) => {
       const brandMatch = !selectedBrand || product.brand?.name === selectedBrand;
+
       const attrs = product.productAttributeValues || [];
       const attributesMatch = Object.entries(selectedAttributes).every(
         ([attrLabel, selectedVals]) => {
@@ -121,34 +53,76 @@ export default function ApparelClientPage({ products, brands, attributeValues })
           );
         }
       );
-      return brandMatch && attributesMatch;
+
+      const categoryMatch =
+        !selectedCategoryId ||
+        (product.rootCategories || []).some(
+          (cat) => String(cat.id) === String(selectedCategoryId)
+        );
+
+      return brandMatch && attributesMatch && categoryMatch;
     });
 
     setFilteredProducts(result);
     setCurrentPage(1);
-  }, [products, selectedBrand, selectedAttributes]);
+  }, [products, selectedBrand, selectedAttributes, selectedCategoryId]);
 
-  // 🟢 Pagination logic
-  const indexOfLast = currentPage * productsPerPage;
-  const indexOfFirst = indexOfLast - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
+  // Filter categories that have products
+  const categoriesWithProducts = useMemo(() => {
+    return categories.filter((cat) =>
+      products.some((product) =>
+        (product.rootCategories || []).some((pCat) => pCat.id === cat.id)
+      )
+    );
+  }, [categories, products]);
+
+  // Update selected category name when ID changes
+  useEffect(() => {
+    const cat = categoriesWithProducts.find((c) => c.id === selectedCategoryId);
+    setSelectedCategoryName(cat?.name || null);
+  }, [selectedCategoryId, categoriesWithProducts]);
+
+  // Pagination
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   return (
     <div className="bg-[#373e3e]">
-      <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
-        {/* Sidebar */}
-        <div className="md:col-span-1 bg-[#1f2323] md:h-auto md:overflow-visible h-[50vh] overflow-y-auto">
+       <div className="block lg:hidden bg-black px-2 py-2 sticky top-0 z-20">
+        <Sidebar
+          categories={categoriesWithProducts}
+          onSelectCategory={(catId) => {
+            if (catId === selectedCategoryId) {
+              setSelectedCategoryId(null);
+              setSelectedCategoryName(null);
+            } else {
+              setSelectedCategoryId(catId);
+            }
+          }}
+        />
+      </div>
+
+      <div className="grid pt-1 grid-cols-1 lg:grid-cols-5">
+        {/* ✅ Sidebar في الجنب للشاشات الكبيرة */}
+        <div className="hidden lg:block lg:col-span-1 bg-black h-auto">
           <Sidebar
-            categories={categories}
-            onSelectCategory={(catName) => setSelectedCategory(catName)}
+            categories={categoriesWithProducts}
+            onSelectCategory={(catId) => {
+              if (catId === selectedCategoryId) {
+                setSelectedCategoryId(null);
+                setSelectedCategoryName(null);
+              } else {
+                setSelectedCategoryId(catId);
+              }
+            }}
           />
         </div>
-
         {/* Products Area */}
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className="text-4xl text-[#1f2323] p-2">
-            {selectedCategory ? t(selectedCategory) : t("Football Shoes")}
+            {selectedCategoryName || t("Goalkeeper Apparel")}
           </h1>
 
           <BrandsSlider
@@ -171,29 +145,10 @@ export default function ApparelClientPage({ products, brands, attributeValues })
             {currentProducts.map((product) => (
               <div
                 key={product.sku}
-                className="bg-gradient-to-br from-white to-neutral-200 rounded-xl shadow-md overflow-hidden flex flex-col relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                className="bg-gradient-to-br from-white to-neutral-200 rounded-xl shadow-md overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
-                {/* Heart Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToWishlist(product.id);
-                  }}
-                  className="absolute top-2 right-2 z-10 p-1 rounded-full transition-all duration-300 hover:bg-white/20"
-                >
-                  <Heart
-                    className={`w-6 h-6 transition-colors duration-300 ${
-                      wishlistIds.includes(String(product.id))
-                        ? "stroke-red-500 fill-red-500"
-                        : "stroke-gray-400 fill-transparent hover:stroke-red-500 hover:fill-red-500"
-                    }`}
-                  />
-                </button>
-
-                {/* Product Slider */}
                 <ProductSlider images={product.images} productName={product.name} />
 
-                {/* Product Details */}
                 <Link
                   href={`/product/${encodeURIComponent(product.sku)}`}
                   className="p-4 flex flex-col flex-grow justify-between"
@@ -223,7 +178,7 @@ export default function ApparelClientPage({ products, brands, attributeValues })
             ))}
           </div>
 
-          {/* Pagination */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
               <button

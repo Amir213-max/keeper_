@@ -6,14 +6,20 @@ import { useState, useEffect, useMemo } from "react";
 import BrandsSlider from "../Componants/brandsSplide_1";
 import FilterDropdown from "../Componants/CheckboxDropdown ";
 import ProductSlider from "../Componants/ProductSlider";
-import Sidebar from "../Componants/sidebar";
 import { useTranslation } from "../contexts/TranslationContext";
 import { graphqlClient } from "../lib/graphqlClient";
 import { GET_CATEGORIES_QUERY, GET_WISHLIST_ITEMS } from "../lib/queries";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
 import { ADD_TO_WISHLIST } from "../lib/mutations";
+import { Splide, SplideSlide } from "@splidejs/react-splide";
+import "@splidejs/react-splide/css";
+import clsx from "clsx";
+import Sidebar from "../Componants/sidebar";
 
+
+
+// Main page component
 export default function FootballClientPage({ products, brands, attributeValues }) {
   const { user } = useAuth();
 
@@ -147,9 +153,23 @@ export default function FootballClientPage({ products, brands, attributeValues }
 
   return (
     <div className="bg-[#373e3e]">
-      <div className="grid pt-4 grid-cols-1 md:grid-cols-5">
-        {/* Sidebar */}
-        <div className="md:col-span-1 bg-[#1f2323] md:h-auto md:overflow-visible h-[50vh] overflow-y-auto">
+        <div className="block lg:hidden bg-black px-2 py-2 sticky top-0 z-20">
+        <Sidebar
+          categories={categoriesWithProducts}
+          onSelectCategory={(catId) => {
+            if (catId === selectedCategoryId) {
+              setSelectedCategoryId(null);
+              setSelectedCategoryName(null);
+            } else {
+              setSelectedCategoryId(catId);
+            }
+          }}
+        />
+      </div>
+
+      <div className="grid pt-1 grid-cols-1 lg:grid-cols-5">
+        {/* ✅ Sidebar في الجنب للشاشات الكبيرة */}
+        <div className="hidden lg:block lg:col-span-1 bg-black h-auto">
           <Sidebar
             categories={categoriesWithProducts}
             onSelectCategory={(catId) => {
@@ -158,13 +178,10 @@ export default function FootballClientPage({ products, brands, attributeValues }
                 setSelectedCategoryName(null);
               } else {
                 setSelectedCategoryId(catId);
-                const cat = categoriesWithProducts.find((c) => c.id === catId);
-                setSelectedCategoryName(cat?.name || null);
               }
             }}
           />
         </div>
-
         {/* Products Area */}
         <div className="md:col-span-4 p-4 bg-white">
           <h1 className="text-4xl text-[#1f2323] p-2">
