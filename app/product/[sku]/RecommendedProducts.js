@@ -86,7 +86,8 @@ export default function RecommendedSlider({ productId }) {
                     {item.name}
                   </h3>
                   <h2 className="font-bold text-2xl mt-8 flex justify-center line-clamp-1">
-                    ${item.price_range_from || 0}
+                  {`SAR ${(item.price_range_from ? item.price_range_from * 4.6 : 0).toFixed(2)}`}
+
                   </h2>
                 </div>
               </div>

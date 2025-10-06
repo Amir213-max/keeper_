@@ -85,9 +85,9 @@ export default function ProductDetailsSidebar({ product }) {
   };
 
   // ✅ حساب السعر
-  const listPrice = product.list_price_amount;
-  const finalPrice = product.price_range_exact_amount;
-  const listCurrency = product.list_price_currency || "€";
+  const listPrice = (product.list_price_amount *4.6);
+  const finalPrice = (product.price_range_exact_amount *4.6) ;
+  const listCurrency = "SAR" ;
 
   const hasDiscount =
     listPrice && finalPrice && finalPrice < listPrice;

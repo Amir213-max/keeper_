@@ -60,7 +60,7 @@ export default function HomePageBlocks() {
   };
 
   return (
-    <div className="space-y-12 px-4 md:px-8 lg:px-16">
+    <div className="space-y-12">
       {blocks.map(block => (
         <div
           key={block.id}
@@ -112,80 +112,89 @@ export default function HomePageBlocks() {
   </div>
 )}
 
-
-            {/* Products */}
-            {block.type === "products" && productsMap[block.id]?.length > 0 && (
-              <Splide
-                key={lang}
-                options={{
-                  type: "loop",
-                  perPage: block.content?.per_row || 4,
-                  gap: "1rem",
-                  autoplay: true,
-                  pauseOnHover: true,
-                  arrows: true,
-                  pagination: false,
-                  direction: lang === 'ar' ? 'rtl' : 'ltr',
-                  breakpoints: {
-                    1280: { perPage: 3 },
-                    1024: { perPage: 2 },
-                    640: { perPage: 1 },
-                  },
+<div className="space-y-12 px-4 md:px-8 lg:px-16">
+ {/* Products */}
+ {block.type === "products" && productsMap[block.id]?.length > 0 && (
+  <Splide
+    key={lang}
+    options={{
+      type: "loop",
+      perPage: block.content?.per_row || 4,
+      gap: "1rem",
+      autoplay: false,
+      pauseOnHover: true,
+      arrows: true,
+      pagination: false,
+      direction: lang === "ar" ? "rtl" : "ltr",
+      breakpoints: {
+        1280: { perPage: 4 },
+        1024: { perPage: 3 },
+        640: { perPage: 2 },
+      },
+    }}
+  >
+    {productsMap[block.id].map((product) => (
+      <SplideSlide key={product.id}>
+        <Link
+          href={`/product/${product.sku}`}
+          className="block bg-neutral-900 hover:bg-neutral-800 rounded-lg shadow-md overflow-hidden flex flex-col transition h-full"
+        >
+          <div className="relative w-full aspect-[2/3] bg-neutral-900 flex items-center justify-center">
+            {product.images?.[0] ? (
+              <Image
+                src={
+                  typeof product.images[0] === "string"
+                    ? product.images[0]
+                    : product.images[0]?.url
+                }
+                alt={product.name}
+                fill
+                className="object-contain p-4"
+                onError={(e) => {
+                  e.currentTarget.src = "/fallback.png";
                 }}
-              >
-                {productsMap[block.id].map(product => (
-                  <SplideSlide key={product.id}>
-                    <Link
-                      href={`/product/${product.sku}`}
-                      className="block bg-neutral-900 hover:bg-neutral-600 rounded-lg shadow-md overflow-hidden flex flex-col transition h-full"
-                    >
-                      <div className="relative w-full aspect-[3/4] bg-neutral-800  flex items-center justify-center">
-                        {product.images?.[0] ? (
-                          <Image
-                            src={typeof product.images[0] === "string" ? product.images[0] : product.images[0]?.url}
-                            alt={product.name}
-                            fill
-                            className="object-contain p-4"
-                            onError={(e) => { e.currentTarget.src = "/fallback.png"; }}
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-gray-400">
-                            No Image
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-4 flex flex-col justify-between flex-1">
-                        <h3 className="text-sm sm:text-base lg:text-lg text-center text-white font-semibold mb-2 line-clamp-2">
-                          {product.name}
-                        </h3>
-
-                        <div className="mt-auto text-center">
-                          {product.price_range_from ? (
-                            <div className="flex flex-col items-center">
-                              <span className="text-gray-400 line-through text-xs sm:text-sm">
-                                {product.list_price_currency}{product.list_price_amount}
-                              </span>
-                              <span className="text-yellow-500 font-bold text-lg sm:text-xl">
-                                {product.list_price_currency}{product.price_range_from}
-                                {product.price_range_to && product.price_range_to !== product.price_range_from
-                                  ? ` - ${product.list_price_currency}${product.price_range_to}`
-                                  : ""}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-yellow-500 font-bold text-lg sm:text-xl">
-                              {product.list_price_currency}{product.list_price_amount}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  </SplideSlide>
-                ))}
-              </Splide>
+                unoptimized
+              />
+            ) : (
+              <div className="w-full h-full bg-neutral-900 flex items-center justify-center text-gray-500">
+                No Image
+              </div>
             )}
+          </div>
+
+          <div className="p-4 flex flex-col justify-between flex-1">
+            <h3 className="text-sm sm:text-base lg:text-lg text-center text-white font-semibold mb-2 line-clamp-2">
+              {product.name}
+            </h3>
+
+            <div className="mt-auto text-center">
+              {product.price_range_from ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-gray-500 line-through text-xs sm:text-sm">
+                    SAR {(product.list_price_amount * 4.6).toFixed(2)}
+                  </span>
+                  <span className="text-yellow-400 font-bold text-lg sm:text-xl">
+                    SAR {(product.list_price_amount * 4.6).toFixed(2)}
+                    {product.price_range_to &&
+                    product.price_range_to !== product.price_range_from
+                      ? ` - SAR ${(product.price_range_to * 4.6).toFixed(2)}`
+                      : ""}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-yellow-400 font-bold text-lg sm:text-xl">
+                  SAR {(product.list_price_amount * 4.6).toFixed(2)}
+                </span>
+              )}
+            </div>
+          </div>
+        </Link>
+      </SplideSlide>
+    ))}
+  </Splide>
+)}
+</div>
+           
           </div>
 
          

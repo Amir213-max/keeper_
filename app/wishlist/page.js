@@ -84,10 +84,11 @@ export default function WishlistPage() {
 
                 <div className="text-center">
                   <div className="line-through text-gray-400 text-sm">
-                    {product.list_price_currency} {product.list_price_amount}
+                     SAR {(product.list_price_amount * 4.6).toFixed(2)}
                   </div>
                   <span className="text-lg font-bold text-gray-900">
-                    {product.list_price_currency} {product.price_range_exact_amount}
+                    SAR {(product.list_price_amount * 4.6).toFixed(2)}
+
                   </span>
                 </div>
 

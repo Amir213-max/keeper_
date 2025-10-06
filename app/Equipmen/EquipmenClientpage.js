@@ -164,10 +164,10 @@ export default function EquipmentClientPage({ products, brands, attributeValues 
                   </p>
                   <div className="text-center">
                     <div className="line-through text-gray-500 text-sm">
-                      {product.list_price_currency} {product.list_price_amount}
+                      SAR {product.list_price_amount} * 4.6
                     </div>
                     <span className="text-lg font-bold text-neutral-900">
-                      {product.list_price_currency} {product.price_range_exact_amount}
+                      SAR {product.price_range_exact_amount} * 4.6
                     </span>
                   </div>
                 </Link>
