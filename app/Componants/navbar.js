@@ -8,7 +8,11 @@ import {
   FaBars,
   FaTimes,
 } from 'react-icons/fa';
+
+
+
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import clsx from 'clsx';
 import CartSidebar from './CartSidebar';
@@ -24,9 +28,9 @@ export default function NavbarWithLinks() {
   return (
     <>
       {/* شعار الخصومات */}
-      <div className="flex mt-3 justify-center text-base sm:text-lg md:text-xl lg:text-2xl w-full font-extrabold text-red-600">
+      {/* <div className="flex mt-3 justify-center text-base sm:text-lg md:text-xl lg:text-2xl w-full font-extrabold text-red-600">
         {'>>'}{t("END OF SALES")}{'<<'}
-      </div>
+      </div> */}
 
       {/* Header Navbar */}
       <header className="w-full bg-black shadow py-4">
@@ -35,10 +39,10 @@ export default function NavbarWithLinks() {
           {/* يسار: Sidebar + Cart */}
           <div className="navbar-left flex items-center gap-4 order-3 sm:order-1">
             <button
-              className="menu-icon hidden sm:block text-white hover:text-red-600 transition-colors duration-200"
+              className="menu-icon hidden text-white hover:text-red-600 transition-colors duration-200"
               onClick={() => setSidebarOpen(true)}
             >
-              <FaBars size={22} />
+              <FaBars className='sm:block  ' size={22} />
             </button>
 
             <button
@@ -48,18 +52,29 @@ export default function NavbarWithLinks() {
               <FaShoppingCart size={20} />
             </button>
 
-            <Link href={'/whislist'}
+            {/* <Link href={'/whislist'}
               className="text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             >
               @
-            </Link>
+            </Link> */}
           </div>
 
           {/* وسط: Logo */}
           <div className="navbar-center order-1 sm:order-2 flex items-center gap-4">
-            <Link href="/" className="text-white text-xl sm:text-2xl font-bold">
-              LOGO
-            </Link>
+      <div className="flex items-center justify-center">
+  <Link href="/" className="relative w-24 sm:w-32 md:w-40 h-10 sm:h-12 md:h-14 block">
+    <Image
+      src="https://static-assets.keepersport.net/dist/82d4dde2fe42e8e4fbfc.svg"
+      alt="LOGO"
+      fill
+      sizes="(max-width: 640px) 6rem, (max-width: 768px) 8rem, 10rem"
+      className="object-contain"
+      priority
+    />
+  </Link>
+
+</div>
+
           </div>
 
           {/* يمين: User + Notifications + Search + Language */}
@@ -70,9 +85,9 @@ export default function NavbarWithLinks() {
             </Link>
 
             {/* أيقونة الإشعارات */}
-            <div className="hover:scale-110 transition-transform duration-200">
+            {/* <div className="hover:scale-110 transition-transform duration-200">
               <NavbarNotifications userId={"1"} />
-            </div>
+            </div> */}
 
             {/* أيقونة البحث */}
             <button

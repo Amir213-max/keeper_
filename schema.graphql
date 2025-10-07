@@ -39,6 +39,10 @@ type HomePageBlock {
     text_color: String
     css_class: String
     display_limit: Int
+    button_location: String
+    button_url: String
+    button_text: String
+    button_style: String
     created_at: String!
     updated_at: String!
     
@@ -140,6 +144,10 @@ input HomePageBlockInput {
     text_color: String
     css_class: String
     display_limit: Int
+    button_location: String
+    button_url: String
+    button_text: String
+    button_style: String
 }
 
 input UpdateHomePageBlockInput {
@@ -154,6 +162,10 @@ input UpdateHomePageBlockInput {
     text_color: String
     css_class: String
     display_limit: Int
+    button_location: String
+    button_url: String
+    button_text: String
+    button_style: String
 }
 
 input HomePageBlocksFiltersInput {
@@ -493,6 +505,7 @@ type Setting {
     type: String!
     group: String!
     description: String
+    url: String
     is_public: Boolean!
     created_at: String!
     updated_at: String!
@@ -501,8 +514,19 @@ type Setting {
 type Notification {
     id: ID!
     type: String!
+    title: String
+    body: String
+    icon: String
+    color: String
+    actions: [NotificationAction!]
+    is_broadcast: Boolean!
+    priority: String!
+    scheduled_at: String
+    expires_at: String
+    target_users: [ID!]
+    category: String
     notifiable_type: String!
-    notifiable_id: ID!
+    notifiable_id: ID
     data: String!
     read_at: String
     created_at: String!
@@ -510,6 +534,11 @@ type Notification {
     
     # Relationships
     notifiable: User @morphTo
+    
+    # Computed fields
+    is_expired: Boolean!
+    is_scheduled: Boolean!
+    is_active: Boolean!
 }
 
 type NotificationData {
@@ -1168,7 +1197,38 @@ input CreateOrderFromCartInput {
      type: String
      group: String
      description: String
+     url: String
      is_public: Boolean
+ }
+
+ input NotificationInput {
+     type: String!
+     title: String
+     body: String
+     icon: String
+     color: String
+     actions: [NotificationActionInput!]
+     priority: String
+     scheduled_at: String
+     expires_at: String
+     category: String
+     data: String
+ }
+
+ input NotificationActionInput {
+     label: String!
+     url: String
+     method: String
+     color: String
+ }
+
+ input CreateNotificationForUsersInput {
+     user_ids: [ID!]!
+     notification: NotificationInput!
+ }
+
+ input CreateBroadcastNotificationInput {
+     notification: NotificationInput!
  }
 
 type Query {
@@ -1344,6 +1404,8 @@ type Query {
     
     # Notifications mutations
     createNotification(input: CreateNotificationInput! @spread): Notification @create(model: "App\\Models\\Notification")
+    createNotificationForUsers(input: CreateNotificationForUsersInput! @spread): [Notification!]! @field(resolver: "App\\GraphQL\\Mutations\\CreateNotificationForUsersMutation")
+    createBroadcastNotification(input: CreateBroadcastNotificationInput! @spread): Notification! @field(resolver: "App\\GraphQL\\Mutations\\CreateBroadcastNotificationMutation")
     markNotificationAsRead(input: MarkNotificationAsReadInput! @spread): Notification! @field(resolver: "App\\GraphQL\\Mutations\\MarkNotificationAsReadMutation")
     markAllNotificationsAsRead(input: MarkAllNotificationsAsReadInput! @spread): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\MarkAllNotificationsAsReadMutation")
     deleteNotification(id: ID!): Notification @delete(model: "App\\Models\\Notification")

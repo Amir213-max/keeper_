@@ -7,7 +7,8 @@ import { useTranslation } from '../contexts/TranslationContext';
 export default function ProductSlider({ images, productName }) {
   const { lang } = useTranslation();
 
-  const showArrows = images.length > 1;
+  const showArrows = images?.length > 1;
+
 
   return (
     <div className="relative w-full flex items-center justify-center">
@@ -23,7 +24,8 @@ export default function ProductSlider({ images, productName }) {
         }}
         className="w-full h-full custom-splide"
       >
-        {images.map((img, index) => (
+       {Array.isArray(images) && images.map((img, index) => (
+
           <SplideSlide
             key={index}
             className="flex items-center justify-center"

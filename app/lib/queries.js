@@ -331,7 +331,8 @@ query getproduct ($id: String!) {
     sku
     description_ar
     description_en
-    
+    created_at
+    updated_at
     images
     variants {
       id
@@ -572,6 +573,11 @@ query {
   activeHomepageBlocks {
     id
     type
+
+    button_style
+    button_text
+    button_url
+    button_location
     title
     is_active
     sort_order
@@ -621,7 +627,7 @@ query {
       }
       show_titles
       show_descriptions
-      brand_ids
+    
       show_names
       content
       alignment
