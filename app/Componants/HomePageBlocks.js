@@ -84,7 +84,7 @@ export default function HomePageBlocks() {
             </h2>
           )}
 
-          <div className="px-4 pb-2 mt-4 space-y-6">
+          <div className="px-1 pb-2 mt-4 space-y-3">
             {/* 🟣 SLIDER */}
             {block.type === "slider" && block.content?.slides?.length > 0 && (
               <Splide
@@ -170,7 +170,7 @@ export default function HomePageBlocks() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: idx * 0.1 }}
-          className={`relative ${isFirstBanner ? "w-full object-fit-fill  h-[70vh]" : " h-[45vh]  flex justify-center flex-1"}`}
+          className={`relative" h-[45vh]  flex justify-center flex-1"}`}
         >
           {isFirstBanner ? (
             <Image
@@ -233,7 +233,7 @@ export default function HomePageBlocks() {
                           className="block bg-[#111] hover:bg-[#2b2a2a] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full"
                         >
                           {/* صورة المنتج */}
-                          <div className="relative flex items-center justify-center aspect-[1/1]">
+                          <div className="relative flex items-center justify-center aspect-[1.3/1.5]">
                             {product.images?.[0] ? (
                               <Image
                                 src={
