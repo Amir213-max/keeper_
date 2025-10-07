@@ -170,7 +170,7 @@ export default function HomePageBlocks() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: idx * 0.1 }}
-          className={`relative ${isFirstBanner ? "w-full object-fit-fill  h-[70vh]" : " h-[60vh]  flex justify-center flex-1"}`}
+          className={`relative ${isFirstBanner ? "w-full object-fit-fill  h-[70vh]" : " h-[45vh]  flex justify-center flex-1"}`}
         >
           {isFirstBanner ? (
             <Image
@@ -284,7 +284,7 @@ export default function HomePageBlocks() {
 
                {/* زرار الـ block */}
 {block.button_text && (
-  <div className={`flex justify-center ${block.button_location === "bottom_center" ? "mt-4" : ""}`}>
+  <div className={`flex justify-center mt-4 ${block.button_location === "bottom_center" ? "mt-4" : ""}`}>
     {block.button_url ? (
       <Link
         href={block.button_url}
