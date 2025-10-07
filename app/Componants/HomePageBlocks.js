@@ -158,43 +158,43 @@ export default function HomePageBlocks() {
 
             {/* 🟠 BANNERS */}
 {block.type === "banners" && block.content?.banners?.length > 0 && (
-  <div className={`flex justify-center flex-col sm:flex-row gap-4 flex-wrap px-1 md:px-2 lg:px-1`}>
-    {block.content.banners.map((banner, idx) => {
-      const isFirstBanner = !firstBannerRenderedRef.current;
+  <div className="flex justify-center flex-col sm:flex-row gap-4 flex-wrap px-1 md:px-2 lg:px-1">
+  {block.content.banners.map((banner, idx) => {
+    const isFirstBanner = !firstBannerRenderedRef.current;
+    if (isFirstBanner) firstBannerRenderedRef.current = true;
 
-      if (isFirstBanner) firstBannerRenderedRef.current = true;
+    return (
+      <motion.div
+        key={banner.id || idx}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: idx * 0.1 }}
+        className={`relative h-[45vh] flex justify-center flex-1 w-full sm:w-auto`}
+      >
+        {isFirstBanner ? (
+          <Image
+            src={getImageUrl(banner.image)}
+            alt={banner.title || ""}
+            fill
+            className="object-fit-fill"
+            unoptimized
+            priority
+          />
+        ) : (
+          <Image
+            src={getImageUrl(banner.image)}
+            alt={banner.title || ""}
+            width={600}
+            height={400}
+            className="w-[100vw] object-fit-contain h-full"
+            unoptimized
+          />
+        )}
+      </motion.div>
+    );
+  })}
+</div>
 
-      return (
-        <motion.div
-          key={banner.id || idx}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: idx * 0.1 }}
-          className={`relative" h-[45vh]  flex justify-center flex-1"}`}
-        >
-          {isFirstBanner ? (
-            <Image
-              src={getImageUrl(banner.image)}
-              alt={banner.title || ""}
-              fill
-              className="object-fit-fill "
-              unoptimized
-              priority
-            />
-          ) : (
-            <Image
-              src={getImageUrl(banner.image)}
-              alt={banner.title || ""}
-              width={600}
-              height={400}
-              className="w-[100vw] object-fit-contain  h-full"
-              unoptimized
-            />
-          )}
-        </motion.div>
-      );
-    })}
-  </div>
 )}
 
 
